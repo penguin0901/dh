@@ -4,6 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>企鹅导航页</title>
+    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
+    <!-- 基本Favicon，ICO格式 -->
+    <link rel="icon" href="penguin.ico" sizes="any"><!-- 任意尺寸 -->
+
+    <!-- 也可以指定ICO格式，但通常不需要，因为ICO格式已经包含多个尺寸 -->
+    <link rel="icon" href="penguin.ico" type="image/x-icon">
+
+    <!-- 现代浏览器，推荐使用PNG格式，可以指定多个尺寸 -->
+    <link rel="icon" type="image/png" href="penguin.png" sizes="32x32">
+    <link rel="icon" type="image/png" href="penguin.png" sizes="16x16">
+
+    <!-- Apple设备 -->
+    <link rel="apple-touch-icon" sizes="180x180" href="penguin.png">
+
+    <!-- Android设备 -->
+    <link rel="icon" type="image/png" sizes="192x192" href="penguin.png">
     <style>
         * {
             margin: 0;
@@ -119,6 +135,14 @@
             text-align: center;
         }
         
+        .chinese-title {
+            font-family: 'Ma Shan Zheng', cursive, sans-serif;
+            font-size: 2rem;
+            text-shadow: 3px 3px 5px rgba(0, 0, 0, 0.7);
+            margin-bottom: 10px;
+            letter-spacing: 5px;
+        }
+        
         .tools-section {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -222,7 +246,7 @@
 <body>
     <div class="container">
         <header>
-            <h1>企鹅导航页</h1>
+            <h1 class="chinese-title">企鹅导航页</h1>
             <p>快速访问常用网站和工具</p>
         </header>
         
@@ -239,11 +263,6 @@
                     <span class="site-name">钟灵毓秀</span>
                 </a>
                 
-                <a href="https://www.douyin.com" class="site-item" target="_blank">
-                    <div class="site-icon">抖音</div>
-                    <span class="site-name">抖音</span>
-                </a>
-                
                 <a href="https://penguin0901.github.io/sgtt/" class="site-item" target="_blank">
                     <div class="site-icon">水柜</div>
                     <span class="site-name">水柜天团网</span>
@@ -254,14 +273,34 @@
                     <span class="site-name">哔哩哔哩</span>
                 </a>
                 
+                <a href="https://web.xml.wiki/" class="site-item" target="_blank">
+                    <div class="site-icon">Anywhere</div>
+                    <span class="site-name">Anywhere</span>
+                </a>
+                
+                <a href="https://chat.deepseek.com/" class="site-item" target="_blank">
+                    <div class="site-icon">DeepSeek</div>
+                    <span class="site-name">DeepSeek</span>
+                </a>
+                
+                <a href="https://www.doubao.com/chat/" class="site-item" target="_blank">
+                    <div class="site-icon">豆包</div>
+                    <span class="site-name">豆包</span>
+                </a>
+                
                 <a href="https://www.zhihu.com" class="site-item" target="_blank">
                     <div class="site-icon">知乎</div>
                     <span class="site-name">知乎</span>
                 </a>
                 
-                <a href="https://www.jd.com" class="site-item" target="_blank">
-                    <div class="site-icon">京东</div>
-                    <span class="site-name">京东</span>
+                <a href="https://www.bmcx.com/" class="site-item" target="_blank">
+                    <div class="site-icon">便民</div>
+                    <span class="site-name">便民查询网</span>
+                </a>
+                
+                <a href="https://www.douyin.com" class="site-item" target="_blank">
+                    <div class="site-icon">抖音</div>
+                    <span class="site-name">抖音</span>
                 </a>
                 
                 <a href="https://www.github.com" class="site-item" target="_blank">
@@ -273,6 +312,22 @@
                     <div class="site-icon">油管</div>
                     <span class="site-name">YouTube</span>
                 </a>
+
+                <a href="https://baike.baidu.com" class="site-item" target="_blank">
+                    <div class="site-icon">百度</div>
+                    <span class="site-name">百度百科</span>
+                </a>
+                
+                <a href="https://www.britannica.com" class="site-item" target="_blank">
+                    <div class="site-icon">大英</div>
+                    <span class="site-name">大英百科全书</span>
+                </a>
+                
+                <a href="https://zh.wikipedia.org" class="site-item" target="_blank">
+                    <div class="site-icon">维基</div>
+                    <span class="site-name">维基百科</span>
+                </a>
+                
             </div>
         </div>
         
@@ -286,18 +341,6 @@
             <div class="tool-card">
                 <h2 class="section-title">待办事项</h2>
                 <ul class="todo-list" id="todo-list">
-                    <li class="todo-item">
-                        <input type="checkbox">
-                        <span>1</span>
-                    </li>
-                    <li class="todo-item">
-                        <input type="checkbox">
-                        <span>2</span>
-                    </li>
-                    <li class="todo-item completed">
-                        <input type="checkbox" checked>
-                        <span>3</span>
-                    </li>
                 </ul>
                 <div class="add-todo">
                     <input type="text" id="new-todo" placeholder="添加新任务...">

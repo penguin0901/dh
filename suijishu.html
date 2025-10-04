@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>随机数生成器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f5f7fa;
+            padding: 20px;
+        }
+        
+        .container {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            padding: 30px;
+            width: 100%;
+            max-width: 450px;
+            text-align: center;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 25px;
+            font-weight: 600;
+            font-size: 28px;
+        }
+        
+        .input-group {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 25px;
+        }
+        
+        .input-field {
+            width: 48%;
+            text-align: left;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+        
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus {
+            border-color: #3498db;
+            outline: none;
+        }
+        
+        .generate-btn {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 14px 0;
+            width: 100%;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-bottom: 25px;
+        }
+        
+        .generate-btn:hover {
+            background-color: #2980b9;
+        }
+        
+        .result-container {
+            margin-top: 20px;
+        }
+        
+        .result-label {
+            color: #7f8c8d;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        
+        .result {
+            font-size: 42px;
+            font-weight: 700;
+            color: #2c3e50;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+        
+        .result.highlight {
+            background-color: #e8f4fc;
+            color: #3498db;
+            transform: scale(1.05);
+        }
+        
+        .error {
+            color: #e74c3c;
+            margin-top: 10px;
+            font-size: 14px;
+            min-height: 20px;
+        }
+        
+        .history {
+            margin-top: 20px;
+            text-align: left;
+        }
+        
+        .history-title {
+            font-size: 16px;
+            color: #7f8c8d;
+            margin-bottom: 10px;
+        }
+        
+        .history-list {
+            list-style-type: none;
+            max-height: 120px;
+            overflow-y: auto;
+        }
+        
+        .history-item {
+            padding: 8px 10px;
+            border-bottom: 1px solid #eee;
+            color: #555;
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px;
+            }
+            
+            .input-group {
+                flex-direction: column;
+            }
+            
+            .input-field {
+                width: 100%;
+                margin-bottom: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>随机数生成器</h1>
+        
+        <div class="input-group">
+            <div class="input-field">
+                <label for="min">最小值</label>
+                <input type="number" id="min" value="1">
+            </div>
+            
+            <div class="input-field">
+                <label for="max">最大值</label>
+                <input type="number" id="max" value="100">
+            </div>
+        </div>
+        
+        <button class="generate-btn" id="generate">生成随机数</button>
+        
+        <div class="error" id="error"></div>
+        
+        <div class="result-container">
+            <div class="result-label">生成的随机数</div>
+            <div class="result" id="result">-</div>
+        </div>
+        
+        <div class="history">
+            <div class="history-title">生成历史</div>
+            <ul class="history-list" id="history"></ul>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const minInput = document.getElementById('min');
+            const maxInput = document.getElementById('max');
+            const generateBtn = document.getElementById('generate');
+            const resultDisplay = document.getElementById('result');
+            const errorDisplay = document.getElementById('error');
+            const historyList = document.getElementById('history');
+            
+            let history = [];
+            
+            // 生成随机数函数
+            function generateRandomNumber(min, max) {
+                return Math.floor(Math.random() * (max - min + 1)) + min;
+            }
+            
+            // 验证输入
+            function validateInputs() {
+                const min = parseInt(minInput.value);
+                const max = parseInt(maxInput.value);
+                
+                if (isNaN(min) || isNaN(max)) {
+                    return "请输入有效的数字";
+                }
+                
+                if (min >= max) {
+                    return "最小值必须小于最大值";
+                }
+                
+                return null;
+            }
+            
+            // 显示结果
+            function showResult(number) {
+                resultDisplay.textContent = number;
+                resultDisplay.classList.add('highlight');
+                
+                setTimeout(() => {
+                    resultDisplay.classList.remove('highlight');
+                }, 500);
+            }
+            
+            // 添加到历史记录
+            function addToHistory(number) {
+                history.unshift(number);
+                if (history.length > 5) {
+                    history.pop();
+                }
+                
+                updateHistoryDisplay();
+            }
+            
+            // 更新历史记录显示
+            function updateHistoryDisplay() {
+                historyList.innerHTML = '';
+                
+                history.forEach((item, index) => {
+                    const li = document.createElement('li');
+                    li.className = 'history-item';
+                    li.textContent = `${index + 1}. ${item}`;
+                    historyList.appendChild(li);
+                });
+            }
+            
+            // 生成按钮点击事件
+            generateBtn.addEventListener('click', function() {
+                errorDisplay.textContent = '';
+                
+                const error = validateInputs();
+                if (error) {
+                    errorDisplay.textContent = error;
+                    return;
+                }
+                
+                const min = parseInt(minInput.value);
+                const max = parseInt(maxInput.value);
+                
+                const randomNumber = generateRandomNumber(min, max);
+                showResult(randomNumber);
+                addToHistory(randomNumber);
+            });
+            
+            // 初始显示
+            updateHistoryDisplay();
+        });
+    </script>
+</body>
+</html>

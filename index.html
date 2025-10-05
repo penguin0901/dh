@@ -5,21 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>企鹅导航页</title>
     <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
-    <!-- 基本Favicon，ICO格式 -->
-    <link rel="icon" href="penguin.ico" sizes="any"><!-- 任意尺寸 -->
-
-    <!-- 也可以指定ICO格式，但通常不需要，因为ICO格式已经包含多个尺寸 -->
-    <link rel="icon" href="penguin.ico" type="image/x-icon">
-
-    <!-- 现代浏览器，推荐使用PNG格式，可以指定多个尺寸 -->
-    <link rel="icon" type="image/png" href="penguin.png" sizes="32x32">
-    <link rel="icon" type="image/png" href="penguin.png" sizes="16x16">
-
-    <!-- Apple设备 -->
-    <link rel="apple-touch-icon" sizes="180x180" href="penguin.png">
-
-    <!-- Android设备 -->
-    <link rel="icon" type="image/png" sizes="192x192" href="penguin.png">
     <style>
         * {
             margin: 0;
@@ -42,6 +27,89 @@
             padding: 20px;
             border-radius: 5px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            transition: margin-left 0.3s ease;
+        }
+        
+        /* 侧边栏样式 */
+        .sidebar {
+            position: fixed;
+            left: -250px;
+            top: 0;
+            width: 250px;
+            height: 100%;
+            background-color: #f8f9fa;
+            transition: left 0.3s ease;
+            z-index: 1000;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+            overflow-y: auto;
+            border-right: 1px solid #e0e0e0;
+        }
+        
+        .sidebar.active {
+            left: 0;
+        }
+        
+        .sidebar-toggle {
+            position: fixed;
+            left: 10px;
+            top: 10px;
+            background: #f8f9fa;
+            color: #333;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            padding: 10px;
+            cursor: pointer;
+            z-index: 1001;
+            font-size: 18px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .sidebar-toggle:hover {
+            background: #e9ecef;
+        }
+        
+        .sidebar-header {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid #e0e0e0;
+            margin-top: 40px;
+        }
+        
+        .sidebar-title {
+            color: #333;
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+        }
+        
+        .sidebar-links {
+            padding: 15px 0;
+        }
+        
+        .sidebar-link {
+            display: block;
+            padding: 12px 20px;
+            color: #333;
+            text-decoration: none;
+            transition: background 0.2s;
+            border-left: 3px solid transparent;
+        }
+        
+        .sidebar-link:hover {
+            background-color: #e9ecef;
+            border-left: 3px solid #4a6cf7;
+        }
+        
+        .sidebar-section {
+            margin-bottom: 20px;
+        }
+        
+        .sidebar-section-title {
+            padding: 10px 20px;
+            font-size: 0.9rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: bold;
         }
         
         header {
@@ -240,11 +308,52 @@
             .tools-section {
                 grid-template-columns: 1fr;
             }
+            
+            .sidebar {
+                width: 220px;
+                left: -220px;
+            }
+            
+            .sidebar.active {
+                left: 0;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
+    <!-- 侧边栏切换按钮 -->
+    <button class="sidebar-toggle" id="sidebar-toggle">☰</button>
+    
+    <!-- 左侧滑出侧边栏 -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2 class="sidebar-title">开发工具</h2>
+            <p style="color: #666; font-size: 0.9rem;">好玩的</p>
+        </div>
+        
+        <div class="sidebar-links">
+            <div class="sidebar-section">
+                <div class="sidebar-section-title">实用工具</div>
+                <a href="https://penguin0901.github.io/dh/suijishu.html" class="sidebar-link" target="_blank">随机数</a>
+                <a href="https://penguin0901.github.io/dh/candle.html" class="sidebar-link" target="_blank">点亮蜡烛</a>
+            </div>
+            
+            <div class="sidebar-section">
+                <div class="sidebar-section-title">休闲游戏</div>
+                <a href="https://penguin0901.github.io/dh/tanchishe.html" class="sidebar-link" target="_blank">越蛇越多</a>
+                <a href="https://penguin0901.github.io/dh/tetris.html" class="sidebar-link" target="_blank">乌克兰方块</a>
+            </div>
+            
+            <div class="sidebar-section">
+                <div class="sidebar-section-title">百科查询</div>
+                <a href="https://baike.baidu.com" class="sidebar-link" target="_blank">百度百科</a>
+                <a href="https://www.britannica.com" class="sidebar-link" target="_blank">大英百科全书</a>
+                <a href="https://zh.wikipedia.org" class="sidebar-link" target="_blank">维基百科</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container" id="main-container">
         <header>
             <h1 class="chinese-title">企鹅导航页</h1>
             <p>快速访问常用网站和工具</p>
@@ -360,6 +469,14 @@
     </div>
 
     <script>
+        // 侧边栏功能
+        const sidebar = document.getElementById('sidebar');
+        const sidebarToggle = document.getElementById('sidebar-toggle');
+        
+        sidebarToggle.addEventListener('click', function() {
+            sidebar.classList.toggle('active');
+        });
+        
         // 更新时间与日期
         function updateTime() {
             const now = new Date();

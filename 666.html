@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>企鹅导航页</title>
+    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            transition: margin-left 0.3s ease;
+        }
+        
+        /* 侧边栏样式 */
+        .sidebar {
+            position: fixed;
+            left: -250px;
+            top: 0;
+            width: 250px;
+            height: 100%;
+            background-color: #f8f9fa;
+            transition: left 0.3s ease;
+            z-index: 1000;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+            overflow-y: auto;
+            border-right: 1px solid #e0e0e0;
+        }
+        
+        .sidebar.active {
+            left: 0;
+        }
+        
+        .sidebar-toggle {
+            position: fixed;
+            left: 10px;
+            top: 10px;
+            background: #f8f9fa;
+            color: #333;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            padding: 10px;
+            cursor: pointer;
+            z-index: 1001;
+            font-size: 18px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .sidebar-toggle:hover {
+            background: #e9ecef;
+        }
+        
+        .sidebar-header {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid #e0e0e0;
+            margin-top: 40px;
+        }
+        
+        .sidebar-title {
+            color: #333;
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+        }
+        
+        .sidebar-links {
+            padding: 15px 0;
+        }
+        
+        .sidebar-link {
+            display: block;
+            padding: 12px 20px;
+            color: #333;
+            text-decoration: none;
+            transition: background 0.2s;
+            border-left: 3px solid transparent;
+        }
+        
+        .sidebar-link:hover {
+            background-color: #e9ecef;
+            border-left: 3px solid #4a6cf7;
+        }
+        
+        .sidebar-section {
+            margin-bottom: 20px;
+        }
+        
+        .sidebar-section-title {
+            padding: 10px 20px;
+            font-size: 0.9rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: bold;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        h1 {
+            font-size: 1.8rem;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .search-container {
+            display: flex;
+            margin-bottom: 30px;
+        }
+        
+        .search-container input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px 0 0 4px;
+            font-size: 1rem;
+            outline: none;
+        }
+        
+        .search-container button {
+            background: #4a6cf7;
+            color: white;
+            border: none;
+            padding: 0 20px;
+            border-radius: 0 4px 4px 0;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        
+        .search-container button:hover {
+            background: #3a5ce5;
+        }
+        
+        .sites-section {
+            margin-bottom: 30px;
+        }
+        
+        .section-title {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            color: #555;
+        }
+        
+        .sites-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 15px;
+        }
+        
+        .site-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: #333;
+            padding: 10px;
+            border: 1px solid #eee;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+        
+        .site-item:hover {
+            background-color: #f9f9f9;
+        }
+        
+        .site-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 8px;
+            background-color: #f0f0f0;
+            color: #555;
+            font-weight: bold;
+        }
+        
+        .site-name {
+            font-size: 0.85rem;
+            text-align: center;
+        }
+        
+        .chinese-title {
+            font-family: 'Ma Shan Zheng', cursive, sans-serif;
+            font-size: 2rem;
+            text-shadow: 3px 3px 5px rgba(0, 0, 0, 0.7);
+            margin-bottom: 10px;
+            letter-spacing: 5px;
+        }
+        
+        .tools-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .tool-card {
+            background: #f9f9f9;
+            border-radius: 4px;
+            padding: 15px;
+            border: 1px solid #eee;
+        }
+        
+        .time-display {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #333;
+            text-align: center;
+            margin: 10px 0;
+        }
+        
+        .date-display {
+            text-align: center;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        
+        .quick-notes {
+            height: 120px;
+            width: 100%;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px;
+            font-size: 0.9rem;
+            resize: none;
+            margin-top: 10px;
+        }
+        
+        .todo-list {
+            list-style-type: none;
+        }
+        
+        .todo-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .todo-item input {
+            margin-right: 10px;
+        }
+        
+        .todo-item.completed {
+            text-decoration: line-through;
+            color: #999;
+        }
+        
+        .add-todo {
+            display: flex;
+            margin-top: 10px;
+        }
+        
+        .add-todo input {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-right: 5px;
+        }
+        
+        .add-todo button {
+            background: #4a6cf7;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 8px 12px;
+            cursor: pointer;
+        }
+        
+        footer {
+            margin-top: 30px;
+            color: #777;
+            text-align: center;
+            font-size: 0.85rem;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+        
+        @media (max-width: 768px) {
+            .sites-grid {
+                grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            }
+            
+            .tools-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                width: 220px;
+                left: -220px;
+            }
+            
+            .sidebar.active {
+                left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 侧边栏切换按钮 -->
+    <button class="sidebar-toggle" id="sidebar-toggle">☰</button>
+    
+    <!-- 左侧滑出侧边栏 -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2 class="sidebar-title">开发工具</h2>
+            <p style="color: #666; font-size: 0.9rem;">好玩的</p>
+        </div>
+        
+        <div class="sidebar-links">
+            <div class="sidebar-section">
+                <div class="sidebar-section-title">实用工具</div>
+                <a href="https://penguin0901.github.io/dh/tool/suijishu.html" class="sidebar-link" target="_blank">随机数生成</a>
+                <a href="https://penguin0901.github.io/dh/tool/candle.html" class="sidebar-link" target="_blank">点亮蜡烛</a>
+                <a href="https://penguin0901.github.io/dh/tool/junjuniloveyou.html" class="sidebar-link" target="_blank">给峻峻表白</a>
+            </div>
+            
+            <div class="sidebar-section">
+                <div class="sidebar-section-title">好玩游戏</div>
+                <a href="https://penguin0901.github.io/dh/game/tanchishe.html" class="sidebar-link" target="_blank">越蛇越多</a>
+                <a href="https://penguin0901.github.io/dh/game/tetris.html" class="sidebar-link" target="_blank">乌克兰方块</a>
+                <a href="https://penguin0901.github.io/dh/game/911.html" class="sidebar-link" target="_blank">飞机撞大楼</a>
+                <a href="https://penguin0901.github.io/dh/game/dycxy.html" class="sidebar-link" target="_blank">大鱼吃小鱼</a>
+            </div>
+            
+            <div class="sidebar-section">
+                <div class="sidebar-section-title">百科查询</div>
+                <a href="https://baike.baidu.com" class="sidebar-link" target="_blank">百度百科</a>
+                <a href="https://www.britannica.com" class="sidebar-link" target="_blank">大英百科全书</a>
+                <a href="https://zh.wikipedia.org" class="sidebar-link" target="_blank">维基百科</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container" id="main-container">
+        <header>
+            <h1 class="chinese-title">企鹅导航页</h1>
+            <p>快速访问常用网站和工具</p>
+        </header>
+        
+        <div class="search-container">
+            <input type="text" id="search-input" placeholder="百度搜索...">
+            <button id="search-btn">搜索</button>
+        </div>
+        
+        <div class="sites-section">
+            <h2 class="section-title">常用网站</h2>
+            <div class="sites-grid">
+                <a href="http://97hs.cn" class="site-item" target="_blank">
+                    <div class="site-icon">钟灵</div>
+                    <span class="site-name">钟灵毓秀</span>
+                </a>
+                
+                <a href="https://penguin0901.github.io/sgtt/" class="site-item" target="_blank">
+                    <div class="site-icon">水柜</div>
+                    <span class="site-name">水柜天团网</span>
+                </a>
+                
+                <a href="https://www.bilibili.com" class="site-item" target="_blank">
+                    <div class="site-icon">哔哩</div>
+                    <span class="site-name">哔哩哔哩</span>
+                </a>
+                
+                <a href="https://web.xml.wiki/" class="site-item" target="_blank">
+                    <div class="site-icon">Anywhere</div>
+                    <span class="site-name">Anywhere</span>
+                </a>
+                
+                <a href="https://chat.deepseek.com/" class="site-item" target="_blank">
+                    <div class="site-icon">DeepSeek</div>
+                    <span class="site-name">DeepSeek</span>
+                </a>
+                
+                <a href="https://www.doubao.com/chat/" class="site-item" target="_blank">
+                    <div class="site-icon">豆包</div>
+                    <span class="site-name">豆包</span>
+                </a>
+                
+                <a href="https://www.zhihu.com" class="site-item" target="_blank">
+                    <div class="site-icon">知乎</div>
+                    <span class="site-name">知乎</span>
+                </a>
+                
+                <a href="https://www.bmcx.com/" class="site-item" target="_blank">
+                    <div class="site-icon">便民</div>
+                    <span class="site-name">便民查询网</span>
+                </a>
+                
+                <a href="https://www.douyin.com" class="site-item" target="_blank">
+                    <div class="site-icon">抖音</div>
+                    <span class="site-name">抖音</span>
+                </a>
+                
+                <a href="https://www.github.com" class="site-item" target="_blank">
+                    <div class="site-icon">GitHub</div>
+                    <span class="site-name">GitHub</span>
+                </a>
+                
+                <a href="https://www.youtube.com" class="site-item" target="_blank">
+                    <div class="site-icon">油管</div>
+                    <span class="site-name">YouTube</span>
+                </a>
+
+                <a href="https://baike.baidu.com" class="site-item" target="_blank">
+                    <div class="site-icon">百度</div>
+                    <span class="site-name">百度百科</span>
+                </a>
+                
+                <a href="https://www.britannica.com" class="site-item" target="_blank">
+                    <div class="site-icon">大英</div>
+                    <span class="site-name">大英百科全书</span>
+                </a>
+                
+                <a href="https://zh.wikipedia.org" class="site-item" target="_blank">
+                    <div class="site-icon">维基</div>
+                    <span class="site-name">维基百科</span>
+                </a>
+                
+            </div>
+        </div>
+        
+        <div class="tools-section">
+            <div class="tool-card">
+                <h2 class="section-title">时间与日期</h2>
+                <div class="time-display" id="current-time">00:00:00</div>
+                <div class="date-display" id="current-date">2023年1月1日 星期X</div>
+            </div>
+            
+            <div class="tool-card">
+                <h2 class="section-title">待办事项</h2>
+                <ul class="todo-list" id="todo-list">
+                </ul>
+                <div class="add-todo">
+                    <input type="text" id="new-todo" placeholder="添加新任务...">
+                    <button id="add-todo-btn">添加</button>
+                </div>
+            </div>
+            
+            <div class="tool-card">
+                <h2 class="section-title">快速笔记</h2>
+                <textarea class="quick-notes" placeholder="记录您的想法..."></textarea>
+            </div>
+        </div>
+        
+        <footer>
+            <p>© 2025 企鹅导航页 | 功能实用</p>
+        </footer>
+    </div>
+
+    <script>
+        // 侧边栏功能
+        const sidebar = document.getElementById('sidebar');
+        const sidebarToggle = document.getElementById('sidebar-toggle');
+        
+        sidebarToggle.addEventListener('click', function() {
+            sidebar.classList.toggle('active');
+        });
+        
+        // 更新时间与日期
+        function updateTime() {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString();
+            const dateStr = now.toLocaleDateString('zh-CN', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                weekday: 'long'
+            });
+            
+            document.getElementById('current-time').textContent = timeStr;
+            document.getElementById('current-date').textContent = dateStr;
+        }
+        
+        // 初始调用并设置定时器每秒更新
+        updateTime();
+        setInterval(updateTime, 1000);
+        
+        // 搜索功能
+        document.getElementById('search-btn').addEventListener('click', function() {
+            const query = document.getElementById('search-input').value;
+            if (query.trim()) {
+                window.open(`https://www.baidu.com/s?wd=${encodeURIComponent(query)}`, '_blank');
+            }
+        });
+        
+        document.getElementById('search-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('search-btn').click();
+            }
+        });
+        
+        // 待办事项功能
+        document.getElementById('add-todo-btn').addEventListener('click', function() {
+            const input = document.getElementById('new-todo');
+            const text = input.value.trim();
+            
+            if (text) {
+                const todoList = document.getElementById('todo-list');
+                const newItem = document.createElement('li');
+                newItem.className = 'todo-item';
+                newItem.innerHTML = `
+                    <input type="checkbox">
+                    <span>${text}</span>
+                `;
+                
+                // 添加复选框事件
+                newItem.querySelector('input').addEventListener('change', function() {
+                    if (this.checked) {
+                        newItem.classList.add('completed');
+                    } else {
+                        newItem.classList.remove('completed');
+                    }
+                });
+                
+                todoList.appendChild(newItem);
+                input.value = '';
+            }
+        });
+        
+        // 为现有待办项添加事件
+        document.querySelectorAll('.todo-item input').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                if (this.checked) {
+                    this.parentElement.classList.add('completed');
+                } else {
+                    this.parentElement.classList.remove('completed');
+                }
+            });
+        });
+        
+        // 允许按Enter键添加待办事项
+        document.getElementById('new-todo').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('add-todo-btn').click();
+            }
+        });
+    </script>
+</body>
+</html>

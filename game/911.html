@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>撞大楼喽！</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #87CEEB;
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+            touch-action: manipulation;
+        }
+        #game-container {
+            position: relative;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            border-radius: 5px;
+            overflow: hidden;
+            max-width: 100%;
+            max-height: 100%;
+        }
+        #game-canvas {
+            background-color: #87CEEB;
+            display: block;
+            width: 100%;
+            height: auto;
+        }
+        #score {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 40px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        #start-screen, #game-over {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            text-align: center;
+        }
+        #game-over {
+            display: none;
+        }
+        h1 {
+            font-size: 36px;
+            margin-bottom: 20px;
+        }
+        p {
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #mobile-controls {
+            position: absolute;
+            bottom: 30px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            display: none; /* 默认隐藏，在移动设备上显示 */
+        }
+        #jump-button {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background-color: rgba(76, 175, 80, 0.7);
+            color: white;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            user-select: none;
+            touch-action: manipulation;
+        }
+        
+        /* 移动设备样式 */
+        @media (max-width: 768px) {
+            #mobile-controls {
+                display: flex;
+            }
+            h1 {
+                font-size: 28px;
+            }
+            #score {
+                font-size: 32px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <canvas id="game-canvas" width="800" height="600"></canvas>
+        <div id="score">0</div>
+        <div id="mobile-controls">
+            <button id="jump-button">上升</button>
+        </div>
+        <div id="start-screen">
+            <h1>飞机撞大楼</h1>
+            <p>按空格键或点击屏幕让飞机上升</p>
+            <p>穿越灰白大楼之间的空隙</p>
+            <button id="start-button">开始游戏</button>
+        </div>
+        <div id="game-over">
+            <h1>游戏结束</h1>
+            <p>你的分数: <span id="final-score">0</span></p>
+            <button id="restart-button">再玩一次</button>
+        </div>
+    </div>
+
+    <script>
+        // 获取DOM元素
+        const canvas = document.getElementById('game-canvas');
+        const ctx = canvas.getContext('2d');
+        const scoreElement = document.getElementById('score');
+        const startScreen = document.getElementById('start-screen');
+        const gameOverScreen = document.getElementById('game-over');
+        const startButton = document.getElementById('start-button');
+        const restartButton = document.getElementById('restart-button');
+        const finalScoreElement = document.getElementById('final-score');
+        const jumpButton = document.getElementById('jump-button');
+
+        // 游戏变量
+        let gameRunning = false;
+        let score = 0;
+        let frames = 0;
+        
+        // 加载飞机图片 - 使用白色飞机图标
+        const planeImage = new Image();
+        planeImage.src = 'https://img.icons8.com/ios-filled/100/ffffff/airplane-mode-on.png';
+        
+        // 飞机属性
+        const plane = {
+            x: 100,
+            y: canvas.height / 2,
+            width: 60,
+            height: 40,
+            velocity: 0,
+            gravity: 0.4,
+            lift: -7,
+            
+            draw: function() {
+                // 如果图片加载成功，使用图片
+                if (planeImage.complete) {
+                    ctx.drawImage(planeImage, this.x - this.width/2, this.y - this.height/2, this.width, this.height);
+                } else {
+                    // 备用方案：绘制白色飞机
+                    ctx.fillStyle = '#ffffff';
+                    ctx.beginPath();
+                    ctx.moveTo(this.x, this.y);
+                    ctx.lineTo(this.x + this.width, this.y - this.height/2);
+                    ctx.lineTo(this.x + this.width, this.y + this.height/2);
+                    ctx.closePath();
+                    ctx.fill();
+                    
+                    // 绘制机翼
+                    ctx.fillStyle = '#f0f0f0';
+                    ctx.fillRect(this.x + 10, this.y - this.height/2 - 5, 20, 5);
+                    ctx.fillRect(this.x + 10, this.y + this.height/2, 20, 5);
+                }
+            },
+            
+            update: function() {
+                this.velocity += this.gravity;
+                this.y += this.velocity;
+                
+                // 限制飞机不能飞出画布顶部
+                if (this.y < 0) {
+                    this.y = 0;
+                    this.velocity = 0;
+                }
+                
+                // 检测是否撞到地面
+                if (this.y + this.height/2 > canvas.height) {
+                    gameOver();
+                }
+            },
+            
+            flap: function() {
+                this.velocity = this.lift;
+            }
+        };
+        
+        // 大厦数组
+        const buildings = [];
+        
+        // 大厦属性 - 固定间隙，但整体位置随机
+        const buildingGap = 200; // 固定间隙
+        const buildingWidth = 80;
+        const buildingSpeed = 3;
+        
+        // 绘制大厦
+        function drawBuilding(x, height, isTop) {
+            // 大厦主体 - 灰白色
+            ctx.fillStyle = '#f5f5f5';
+            ctx.strokeStyle = '#dcdcdc';
+            ctx.lineWidth = 2;
+            
+            if (isTop) {
+                ctx.fillRect(x, 0, buildingWidth, height);
+                ctx.strokeRect(x, 0, buildingWidth, height);
+            } else {
+                ctx.fillRect(x, canvas.height - height, buildingWidth, height);
+                ctx.strokeRect(x, canvas.height - height, buildingWidth, height);
+            }
+            
+            // 添加蓝色窗户
+            ctx.fillStyle = '#3498db';
+            const windowSize = 8;
+            const windowSpacing = 15;
+            
+            if (isTop) {
+                for (let row = 20; row < height - 10; row += windowSpacing) {
+                    for (let col = x + 10; col < x + buildingWidth - 10; col += windowSpacing) {
+                        ctx.fillRect(col, row, windowSize, windowSize);
+                    }
+                }
+            } else {
+                const buildingTop = canvas.height - height;
+                for (let row = buildingTop + 20; row < canvas.height - 10; row += windowSpacing) {
+                    for (let col = x + 10; col < x + buildingWidth - 10; col += windowSpacing) {
+                        ctx.fillRect(col, row, windowSize, windowSize);
+                    }
+                }
+            }
+        }
+        
+        // 生成大厦 - 固定间隙但随机位置
+        function generateBuilding() {
+            // 随机决定间隙的位置（上下移动）
+            const gapPosition = Math.random() * (canvas.height - buildingGap - 100) + 50;
+            
+            buildings.push({
+                x: canvas.width,
+                topHeight: gapPosition,
+                bottomHeight: canvas.height - gapPosition - buildingGap,
+                passed: false
+            });
+        }
+        
+        // 绘制背景
+        function drawBackground() {
+            // 天空 - 浅蓝色
+            ctx.fillStyle = '#87CEEB';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+        
+        // 碰撞检测
+        function collisionDetection() {
+            for (let i = 0; i < buildings.length; i++) {
+                const building = buildings[i];
+                
+                // 检测与顶部大厦的碰撞
+                if (plane.x + plane.width/2 > building.x && 
+                    plane.x - plane.width/2 < building.x + buildingWidth &&
+                    plane.y - plane.height/2 < building.topHeight) {
+                    gameOver();
+                }
+                
+                // 检测与底部大厦的碰撞
+                if (plane.x + plane.width/2 > building.x && 
+                    plane.x - plane.width/2 < building.x + buildingWidth &&
+                    plane.y + plane.height/2 > canvas.height - building.bottomHeight) {
+                    gameOver();
+                }
+                
+                // 计分
+                if (!building.passed && plane.x > building.x + buildingWidth) {
+                    building.passed = true;
+                    score++;
+                    scoreElement.textContent = score;
+                }
+            }
+        }
+        
+        // 游戏循环
+        function gameLoop() {
+            if (!gameRunning) return;
+            
+            // 清除画布
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // 绘制背景
+            drawBackground();
+            
+            // 更新和绘制大厦
+            for (let i = buildings.length - 1; i >= 0; i--) {
+                const building = buildings[i];
+                building.x -= buildingSpeed;
+                
+                // 绘制顶部大厦
+                drawBuilding(building.x, building.topHeight, true);
+                
+                // 绘制底部大厦
+                drawBuilding(building.x, building.bottomHeight, false);
+                
+                // 移除超出屏幕的大厦
+                if (building.x + buildingWidth < 0) {
+                    buildings.splice(i, 1);
+                }
+            }
+            
+            // 更新和绘制飞机
+            plane.update();
+            plane.draw();
+            
+            // 碰撞检测
+            collisionDetection();
+            
+            // 生成新大厦
+            if (frames % 100 === 0) {
+                generateBuilding();
+            }
+            
+            frames++;
+            requestAnimationFrame(gameLoop);
+        }
+        
+        // 开始游戏
+        function startGame() {
+            gameRunning = true;
+            score = 0;
+            frames = 0;
+            buildings.length = 0;
+            plane.y = canvas.height / 2;
+            plane.velocity = 0;
+            scoreElement.textContent = score;
+            startScreen.style.display = 'none';
+            gameOverScreen.style.display = 'none';
+            gameLoop();
+        }
+        
+        // 游戏结束
+        function gameOver() {
+            gameRunning = false;
+            finalScoreElement.textContent = score;
+            gameOverScreen.style.display = 'flex';
+        }
+        
+        // 检测是否为移动设备
+        function isMobileDevice() {
+            return (typeof window.orientation !== "undefined") || (navigator.userAgent.indexOf('IEMobile') !== -1);
+        }
+        
+        // 事件监听
+        startButton.addEventListener('click', startGame);
+        restartButton.addEventListener('click', startGame);
+        jumpButton.addEventListener('click', function() {
+            if (gameRunning) {
+                plane.flap();
+            }
+        });
+        
+        document.addEventListener('keydown', function(e) {
+            if (e.code === 'Space') {
+                e.preventDefault(); // 防止空格键滚动页面
+                if (!gameRunning && startScreen.style.display !== 'none') {
+                    startGame();
+                } else if (gameRunning) {
+                    plane.flap();
+                }
+            }
+        });
+        
+        canvas.addEventListener('click', function() {
+            if (gameRunning) {
+                plane.flap();
+            }
+        });
+        
+        // 在移动设备上显示控制按钮
+        if (isMobileDevice()) {
+            document.getElementById('mobile-controls').style.display = 'flex';
+        }
+    </script>
+</body>
+</html>

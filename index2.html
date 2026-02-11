@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>企鹅导航 · 新春版</title>
+    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
+    <style>
+        /* ===== 原基础样式 (部分色值已调整为春节红金主题) ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(145deg, #fff1f0 0%, #ffe6e5 100%);
+            color: #2c1a1a;
+            line-height: 1.6;
+            padding: 20px;
+            position: relative;
+        }
+        /* 增加淡淡的红纹底纹，像红包纹理 */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: radial-gradient(#ffcdd2 1px, transparent 1px);
+            background-size: 28px 28px;
+            opacity: 0.2;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: #fffcf9;
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 8px 20px rgba(200, 60, 60, 0.15);
+            transition: margin-left 0.3s ease;
+            border: 1px solid #ffc2b3;
+        }
+        
+        /* 侧边栏样式 —— 红金韵味 */
+        .sidebar {
+            position: fixed;
+            left: -250px;
+            top: 0;
+            width: 250px;
+            height: 100%;
+            background-color: #fff8f5;
+            transition: left 0.3s ease;
+            z-index: 1000;
+            box-shadow: 4px 0 12px rgba(200, 80, 60, 0.2);
+            overflow-y: auto;
+            border-right: 2px solid #ffb3a6;
+        }
+        
+        .sidebar.active {
+            left: 0;
+        }
+        
+        .sidebar-toggle {
+            position: fixed;
+            left: 10px;
+            top: 10px;
+            background: #c53a1f;  /* 年节红 */
+            color: white;
+            border: 1px solid #a82e1a;
+            border-radius: 10px;
+            padding: 10px 14px;
+            cursor: pointer;
+            z-index: 1001;
+            font-size: 20px;
+            box-shadow: 0 4px 10px rgba(190, 50, 30, 0.3);
+            transition: all 0.2s;
+        }
+        
+        .sidebar-toggle:hover {
+            background: #a82e1a;
+            border-color: #862212;
+            box-shadow: 0 6px 12px rgba(180, 40, 20, 0.4);
+        }
+        
+        .sidebar-header {
+            padding: 25px 20px;
+            text-align: center;
+            border-bottom: 2px solid #ffccbc;
+            margin-top: 40px;
+            background: #ffefeb;
+            border-radius: 0 0 20px 20px;
+        }
+        
+        .sidebar-title {
+            color: #a8321c;
+            font-size: 1.4rem;
+            margin-bottom: 6px;
+            text-shadow: 0 2px 4px #ffd0c4;
+        }
+        
+        .sidebar-links {
+            padding: 15px 0;
+        }
+        
+        .sidebar-link {
+            display: block;
+            padding: 12px 20px;
+            color: #3e2a2a;
+            text-decoration: none;
+            transition: background 0.2s, border-left 0.2s;
+            border-left: 3px solid transparent;
+            font-weight: 500;
+        }
+        
+        .sidebar-link:hover {
+            background-color: #ffe4e0;
+            border-left: 3px solid #c53a1f;  /* 红色吉祥 */
+            color: #a82e1a;
+        }
+        
+        .sidebar-section {
+            margin-bottom: 20px;
+        }
+        
+        .sidebar-section-title {
+            padding: 10px 20px;
+            font-size: 0.85rem;
+            color: #b04a3c;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 700;
+            border-bottom: 1px dashed #ffaa99;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #ffc2b0;
+        }
+        
+        h1 {
+            font-size: 2rem;
+            color: #8b2c1a;
+            margin-bottom: 8px;
+        }
+        
+        /* 灯笼装饰 + 毛体大字 */
+        .chinese-title {
+            font-family: 'Ma Shan Zheng', cursive, sans-serif;
+            font-size: 2.2rem;
+            text-shadow: 3px 3px 0 #ffc2b0, 5px 5px 10px rgba(200, 70, 20, 0.3);
+            margin-bottom: 10px;
+            letter-spacing: 6px;
+            color: #a52a1a;
+        }
+        
+        .lantern {
+            display: inline-block;
+            margin: 0 6px;
+            font-size: 2.2rem;
+            filter: drop-shadow(0 6px 4px rgba(200, 50, 0, 0.4));
+        }
+        
+        .search-container {
+            display: flex;
+            margin-bottom: 30px;
+        }
+        
+        .search-container input {
+            flex: 1;
+            padding: 12px 18px;
+            border: 2px solid #ffb3a1;
+            border-radius: 30px 0 0 30px;
+            font-size: 1rem;
+            outline: none;
+            background: #fffcf9;
+            transition: border 0.2s;
+        }
+        .search-container input:focus {
+            border-color: #c53a1f;
+            box-shadow: inset 0 0 0 1px #ff7a5c;
+        }
+        
+        .search-container button {
+            background: #c53a1f;
+            color: white;
+            border: none;
+            padding: 0 24px;
+            border-radius: 0 30px 30px 0;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border: 2px solid #c53a1f;
+            transition: 0.2s;
+        }
+        
+        .search-container button:hover {
+            background: #a82e1a;
+            border-color: #a82e1a;
+        }
+        
+        .sites-section {
+            margin-bottom: 35px;
+        }
+        
+        .section-title {
+            font-size: 1.3rem;
+            margin-bottom: 18px;
+            color: #992e1a;
+            border-left: 8px solid #e65a41;
+            padding-left: 15px;
+            font-weight: 700;
+            letter-spacing: 2px;
+        }
+        
+        .sites-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 18px;
+        }
+        
+        .site-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: #3e2a1f;
+            padding: 12px 6px;
+            border: 1px solid #ffd9cc;
+            border-radius: 16px;
+            transition: all 0.2s;
+            background: #fffbf9;
+        }
+        
+        .site-item:hover {
+            background-color: #ffeae5;
+            border-color: #d84c2b;
+            box-shadow: 0 6px 12px rgba(220, 80, 40, 0.15);
+            transform: translateY(-2px);
+        }
+        
+        .site-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 8px;
+            background-color: #ffded5;
+            color: #8b3622;
+            font-weight: bold;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 6px #ffb8a8;
+            transition: 0.2s;
+        }
+        .site-item:hover .site-icon {
+            background-color: #ffb8a8;
+            color: #631f10;
+        }
+        
+        .site-name {
+            font-size: 0.85rem;
+            text-align: center;
+            font-weight: 500;
+            color: #68291b;
+        }
+        
+        .tools-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 10px;
+        }
+        
+        .tool-card {
+            background: #fffaf7;
+            border-radius: 20px;
+            padding: 20px 18px;
+            border: 1px solid #ffbbaa;
+            box-shadow: 0 6px 0 #ffccbc;
+        }
+        
+        .time-display {
+            font-size: 1.7rem;
+            font-weight: 700;
+            color: #aa2e1c;
+            text-align: center;
+            margin: 8px 0;
+            text-shadow: 0 2px 6px #ffe1d5;
+        }
+        
+        .date-display {
+            text-align: center;
+            color: #77453a;
+            margin-bottom: 6px;
+            font-size: 1rem;
+        }
+        
+        .quick-notes {
+            height: 120px;
+            width: 100%;
+            border: 2px solid #ffbbaa;
+            border-radius: 16px;
+            padding: 14px;
+            font-size: 0.95rem;
+            resize: none;
+            margin-top: 10px;
+            background: #fff9f5;
+            color: #3e1e1a;
+        }
+        .quick-notes::placeholder {
+            color: #ba6b5a;
+            font-style: italic;
+        }
+        
+        .todo-list {
+            list-style-type: none;
+        }
+        
+        .todo-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px dashed #ffc2b0;
+            color: #4a2a1f;
+        }
+        
+        .todo-item input {
+            margin-right: 12px;
+            accent-color: #c53a1f; /* 红色复选框 */
+            width: 18px;
+            height: 18px;
+        }
+        
+        .todo-item.completed {
+            text-decoration: line-through;
+            color: #ad7a6a;
+        }
+        
+        .add-todo {
+            display: flex;
+            margin-top: 15px;
+        }
+        
+        .add-todo input {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #ffb09c;
+            border-radius: 30px 0 0 30px;
+            background: #fffdfc;
+            outline: none;
+        }
+        .add-todo input:focus {
+            border-color: #c9422a;
+        }
+        
+        .add-todo button {
+            background: #c53a1f;
+            color: white;
+            border: none;
+            border-radius: 0 30px 30px 0;
+            padding: 10px 18px;
+            cursor: pointer;
+            font-weight: bold;
+            border: 2px solid #c53a1f;
+            transition: 0.2s;
+        }
+        .add-todo button:hover {
+            background: #a82e1a;
+        }
+        
+        footer {
+            margin-top: 40px;
+            color: #78483a;
+            text-align: center;
+            font-size: 0.9rem;
+            padding-top: 22px;
+            border-top: 2px solid #ffccbb;
+            background: #fff4ef;
+            border-radius: 0 0 16px 16px;
+            padding-bottom: 10px;
+        }
+        footer p {
+            margin: 6px 0;
+        }
+        /* 新春特别小装饰 */
+        .new-year-greeting {
+            color: #c53a1f;
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-top: 8px;
+            letter-spacing: 4px;
+        }
+        .festival-badge {
+            background: #ffd7cc;
+            display: inline-block;
+            padding: 4px 14px;
+            border-radius: 50px;
+            color: #942812;
+            font-size: 0.9rem;
+            border: 1px solid #ff7f5f;
+            margin-top: 5px;
+        }
+        
+        @media (max-width: 768px) {
+            .sites-grid {
+                grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            }
+            .tools-section {
+                grid-template-columns: 1fr;
+            }
+            .sidebar {
+                width: 220px;
+                left: -220px;
+            }
+            .sidebar.active {
+                left: 0;
+            }
+            .chinese-title {
+                font-size: 1.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 侧边栏切换按钮 · 红灯笼色 -->
+    <button class="sidebar-toggle" id="sidebar-toggle">🏮☰🏮</button>
+    
+    <!-- 左侧滑出侧边栏 · 新春特别版 -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2 class="sidebar-title">🧧 春节·工具箱</h2>
+            <p style="color: #b3432a; font-size: 1rem; font-weight: bold;">🐧 企鹅贺岁 🐧</p>
+            <span class="festival-badge">丙午大吉</span>
+        </div>
+        
+        <div class="sidebar-links">
+            <div class="sidebar-section">
+                <div class="sidebar-section-title">🏮 实用工具</div>
+                <a href="https://penguin0901.github.io/wk/" class="sidebar-link" target="_blank">📚 企鹅文库</a>
+                <a href="https://snapany.com/zh/bilibili#google_vignette" class="sidebar-link" target="_blank">🎬 B站视频下载</a>
+                <a href="https://penguin0901.github.io/dh/tool/suijishu.html" class="sidebar-link" target="_blank">🎲 随机数生成</a>
+                <a href="https://penguin0901.github.io/dh/tool/candle.html" class="sidebar-link" target="_blank">🕯️ 点亮蜡烛</a>
+                <a href="https://penguin0901.github.io/dh/tool/junjuniloveyou.html" class="sidebar-link" target="_blank">💝 给峻峻表白</a>
+                <a href="https://penguin0901.github.io/dh/%E4%B8%9C%E6%96%B9%E5%A4%9C%E9%9B%80%E9%A3%9F%E5%A0%82%20%E5%A4%B4%E5%83%8F%26%E8%A1%A8%E6%83%85%E5%8C%85%20~%20Avatar%20Image.rar" class="sidebar-link" target="_blank">🦚 东方夜雀食堂 头像包</a>
+            </div>
+            
+            <div class="sidebar-section">
+                <div class="sidebar-section-title">🧨 好玩游戏</div>
+                <a href="https://penguin0901.github.io/dh/game/tanchishe.html" class="sidebar-link" target="_blank">🐍 越蛇越多</a>
+                <a href="https://penguin0901.github.io/dh/game/tetris.html" class="sidebar-link" target="_blank">🧩 乌克兰方块</a>
+                <a href="https://penguin0901.github.io/dh/game/911.html" class="sidebar-link" target="_blank">✈️ 飞机撞大楼</a>
+                <a href="https://penguin0901.github.io/dh/game/dycxy.html" class="sidebar-link" target="_blank">🐟 大鱼吃小鱼</a>
+            </div>
+            
+            <div class="sidebar-section">
+                <div class="sidebar-section-title">📖 百科查询</div>
+                <a href="https://baike.baidu.com" class="sidebar-link" target="_blank">📘 百度百科</a>
+                <a href="https://www.britannica.com" class="sidebar-link" target="_blank">🏛️ 大英百科全书</a>
+                <a href="https://zh.wikipedia.org" class="sidebar-link" target="_blank">🌐 维基百科</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container" id="main-container">
+        <header>
+            <!-- 挂上灯笼，年味十足 -->
+            <h1 class="chinese-title">
+                <span class="lantern">🏮</span> zxd导航页 <span class="lantern">🏮</span>
+            </h1>
+            <p style="color: #a8432d; font-size: 1.2rem;">🐧 马哥整活中，勿扰 🐧</p>
+            <p class="new-year-greeting">🧧 新春快乐 万事顺遂 🧧</p>
+        </header>
+        
+        <div class="search-container">
+            <input type="text" id="search-input" placeholder="百度搜索... 输入年货、祝福...">
+            <button id="search-btn">🏮 搜索</button>
+        </div>
+        
+        <div class="sites-section">
+            <h2 class="section-title">✨ 年味常用网站 ✨</h2>
+            <div class="sites-grid">
+                <a href="http://97hs.cn" class="site-item" target="_blank">
+                    <div class="site-icon">钟灵</div>
+                    <span class="site-name">钟灵毓秀</span>
+                </a>
+                
+                <a href="https://penguin0901.github.io/sgtt/" class="site-item" target="_blank">
+                    <div class="site-icon">水柜</div>
+                    <span class="site-name">水柜天团网</span>
+                </a>
+                
+                <a href="https://www.bilibili.com" class="site-item" target="_blank">
+                    <div class="site-icon">哔哩</div>
+                    <span class="site-name">哔哩哔哩</span>
+                </a>
+                
+                <a href="https://web.xml.wiki/" class="site-item" target="_blank">
+                    <div class="site-icon">Any</div>
+                    <span class="site-name">Anywhere</span>
+                </a>
+                
+                <a href="https://chat.deepseek.com/" class="site-item" target="_blank">
+                    <div class="site-icon">Deep</div>
+                    <span class="site-name">DeepSeek</span>
+                </a>
+                
+                <a href="https://www.doubao.com/chat/" class="site-item" target="_blank">
+                    <div class="site-icon">豆包</div>
+                    <span class="site-name">豆包</span>
+                </a>
+                
+                <a href="https://www.zhihu.com" class="site-item" target="_blank">
+                    <div class="site-icon">知乎</div>
+                    <span class="site-name">知乎</span>
+                </a>
+                
+                <a href="https://www.bmcx.com/" class="site-item" target="_blank">
+                    <div class="site-icon">便民</div>
+                    <span class="site-name">便民查询</span>
+                </a>
+                
+                <a href="https://www.douyin.com" class="site-item" target="_blank">
+                    <div class="site-icon">抖音</div>
+                    <span class="site-name">抖音</span>
+                </a>
+                
+                <a href="https://www.github.com" class="site-item" target="_blank">
+                    <div class="site-icon">Git</div>
+                    <span class="site-name">GitHub</span>
+                </a>
+                
+                <a href="https://www.moqukeji.com/" class="site-item" target="_blank">
+                    <div class="site-icon">墨趣</div>
+                    <span class="site-name">墨趣</span>
+                </a>
+                
+                <a href="https://baike.baidu.com" class="site-item" target="_blank">
+                    <div class="site-icon">百度</div>
+                    <span class="site-name">百度百科</span>
+                </a>
+                
+                <a href="https://www.britannica.com" class="site-item" target="_blank">
+                    <div class="site-icon">大英</div>
+                    <span class="site-name">大英百科</span>
+                </a>
+                
+                <a href="https://penguin0901.github.io/dh/m.html" class="site-item" target="_blank">
+                    <div class="site-icon">???</div>
+                    <span class="site-name">???</span>
+                </a>
+            </div>
+        </div>
+        
+        <div class="tools-section">
+            <div class="tool-card">
+                <h2 class="section-title">⏰ 时间与日期 · 春</h2>
+                <div class="time-display" id="current-time">00:00:00</div>
+                <div class="date-display" id="current-date">2026年2月11日 星期三</div>
+                <!-- 春节小祝福嵌入时间卡 -->
+                <div style="text-align: center; margin-top: 12px; background: #ffd7cc; padding: 6px 0; border-radius: 40px; color: #9e2d1a; font-weight: bold;">
+                    🧨 距春节倒计时 6天 🧨
+                </div>
+            </div>
+            
+            <div class="tool-card">
+                <h2 class="section-title">📋 新年待办 🎋</h2>
+                <ul class="todo-list" id="todo-list">
+                    <!-- 预置一条喜庆待办 -->
+                    <li class="todo-item">
+                        <input type="checkbox">
+                        <span>🧧 买年货、贴春联</span>
+                    </li>
+                    <li class="todo-item">
+                        <input type="checkbox">
+                        <span>🐧 给企鹅导航换新装</span>
+                    </li>
+                </ul>
+                <div class="add-todo">
+                    <input type="text" id="new-todo" placeholder="添加新年计划...">
+                    <button id="add-todo-btn">➕添加</button>
+                </div>
+            </div>
+            
+            <div class="tool-card">
+                <h2 class="section-title">✍️ 新春笔记</h2>
+                <textarea class="quick-notes" placeholder="写下新年愿望… 平安喜乐，万事胜意。"></textarea>
+            </div>
+        </div>
+        
+        <footer>
+            <p>🎊 如有疑问与建议，敬请联系企鹅君 🎊</p>
+            <p>📞 Tel：15131899885  &nbsp;|&nbsp;  💬 微信：penguin09-01</p>
+            <p>🐧 QQ：1835778840  &nbsp;|&nbsp;  🎵 抖音：Tephra0901</p>
+            <p style="color: #c53a1f; font-size: 1.1rem; margin-top: 10px;">🧧 丙午年 · 吉祥安康 万事兴龍 🧧</p>
+            <p>© 2026 企鹅导航 · 春节限定 | 福气满满</p>
+        </footer>
+    </div>
+
+    <script>
+        // 侧边栏功能 —— 新年照样顺滑
+        const sidebar = document.getElementById('sidebar');
+        const sidebarToggle = document.getElementById('sidebar-toggle');
+        
+        sidebarToggle.addEventListener('click', function() {
+            sidebar.classList.toggle('active');
+        });
+        
+        // 更新日期与时间 (金红时刻)
+        function updateTime() {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('zh-CN', { hour12: false });
+            const dateStr = now.toLocaleDateString('zh-CN', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                weekday: 'long'
+            });
+            
+            document.getElementById('current-time').textContent = timeStr;
+            document.getElementById('current-date').textContent = dateStr;
+
+            // 春节倒计时简易版（2026年春节是2月17日）—— 氛围感
+            const springFestival2026 = new Date(2026, 1, 17); // 月份0索引，2月17日
+            const diffTime = springFestival2026 - now;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            const countdownEl = document.querySelector('.tool-card:first-child div[style*="text-align: center; margin-top"]');
+            if (countdownEl) {
+                if (diffDays >= 0) {
+                    countdownEl.innerHTML = `🧨 距春节仅剩 ${diffDays} 天 🧨`;
+                } else {
+                    countdownEl.innerHTML = `🎉 新春大吉 · 已进入丙午年 🎉`;
+                }
+            }
+        }
+        
+        updateTime();
+        setInterval(updateTime, 1000);
+        
+        // 百度搜索 (红运当头)
+        document.getElementById('search-btn').addEventListener('click', function() {
+            const query = document.getElementById('search-input').value;
+            if (query.trim()) {
+                window.open(`https://www.baidu.com/s?wd=${encodeURIComponent(query)}`, '_blank');
+            }
+        });
+        
+        document.getElementById('search-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('search-btn').click();
+            }
+        });
+        
+        // 待办事项 · 新年新任务
+        document.getElementById('add-todo-btn').addEventListener('click', function() {
+            const input = document.getElementById('new-todo');
+            const text = input.value.trim();
+            
+            if (text) {
+                const todoList = document.getElementById('todo-list');
+                const newItem = document.createElement('li');
+                newItem.className = 'todo-item';
+                newItem.innerHTML = `
+                    <input type="checkbox">
+                    <span>${text}</span>
+                `;
+                
+                newItem.querySelector('input').addEventListener('change', function() {
+                    if (this.checked) {
+                        newItem.classList.add('completed');
+                    } else {
+                        newItem.classList.remove('completed');
+                    }
+                });
+                
+                todoList.appendChild(newItem);
+                input.value = '';
+            }
+        });
+        
+        // 为现有待办项加上事件（包括预置两条）
+        document.querySelectorAll('.todo-item input').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                if (this.checked) {
+                    this.parentElement.classList.add('completed');
+                } else {
+                    this.parentElement.classList.remove('completed');
+                }
+            });
+        });
+        
+        // 回车添加待办
+        document.getElementById('new-todo').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('add-todo-btn').click();
+            }
+        });
+    </script>
+    <!-- 简单增加一个动态灯笼点缀（用emoji已经足够） -->
+</body>
+</html>

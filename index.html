@@ -11,7 +11,7 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: Arial, sans-serif;
+            font-family: Lo, sans-serif;
         }
         
         body {
@@ -204,12 +204,15 @@
             text-align: center;
         }
         
+        /* 更换为另一款优美的英语手写字体：Alex Brush */
         .chinese-title {
-            font-family: 'Lora', cursive, sans-serif;
-            font-size: 2rem;
-            text-shadow: 3px 3px 5px rgba(0, 0, 0, 0.7);
+            font-family: 'Alex Brush', 'Great Vibes', 'Dancing Script', 'Pacifico', cursive, serif;
+            font-size: 3.2rem;
+            font-weight: 400;
+            text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.06);
             margin-bottom: 10px;
-            letter-spacing: 5px;
+            letter-spacing: 1.5px;
+            color: #2c3e50;
         }
         
         .tools-section {
@@ -320,6 +323,8 @@
             }
         }
     </style>
+    <!-- 引入 Alex Brush 字体 (更优雅的手写体) 以及备用字体 -->
+    <link href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Great+Vibes&family=Dancing+Script:wght@400;700&family=Pacifico&display=swap" rel="stylesheet">
 </head>
 <body>
     <!-- 侧边栏切换按钮 -->
@@ -363,6 +368,7 @@
 
     <div class="container" id="main-container">
         <header>
+            <!-- 标题字体已更换为 Alex Brush，其他内容未变 -->
             <h1 class="chinese-title">Ashen</h1>
             <p>Exploring the world</p>
         </header>
@@ -571,9 +577,3 @@
     </script>
 </body>
 </html>
-
-
-
-
-
-

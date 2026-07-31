@@ -1,0 +1,2145 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>铁履与红雪 - 1989 罗马尼亚十二月革命</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          bg:         'hsl(90 10% 10%)',
+          surface:    'hsl(90 8% 15%)',
+          'surface-2':'hsl(90 7% 20%)',
+          text:       'hsl(90 10% 92%)',
+          'text-muted':'hsl(90 8% 60%)',
+          primary:    'hsl(90 25% 35%)',
+          'primary-l':'hsl(90 30% 50%)',
+          accent:     'hsl(0 70% 50%)',
+          'accent-l': 'hsl(0 75% 62%)',
+          border:     'hsl(90 8% 25%)',
+          weapon:     'hsl(25 60% 45%)',
+          human:      'hsl(340 60% 55%)',
+        },
+        fontFamily: {
+          serif: ['"Noto Serif SC"', '"Source Han Serif SC"', '"Songti SC"', 'SimSun', 'serif'],
+          sans: ['-apple-system', '"PingFang SC"', '"Microsoft YaHei"', 'sans-serif'],
+        },
+      }
+    }
+  };
+</script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  img, video { max-width: 100%; height: auto; display: block; }
+  body { overflow-wrap: break-word; margin: 0; background: #000; color: hsl(90 10% 92%); font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; }
+
+  /* ===== 游戏容器 ===== */
+  #game {
+    position: fixed; inset: 0;
+    overflow: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  /* ===== 背景层 ===== */
+  .bg-layer {
+    position: absolute; inset: 0;
+    background-size: cover;
+    background-position: center;
+    transition: opacity 1.2s ease, transform 8s ease-out;
+    filter: brightness(0.85) saturate(0.9);
+  }
+  .bg-layer::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.1) 40%, rgba(0,0,0,0.55) 100%);
+    pointer-events: none;
+  }
+  .bg-kenburns {
+    animation: kenburns 20s ease-in-out infinite alternate;
+  }
+  @keyframes kenburns {
+    0%   { transform: scale(1.0) translate(0, 0); }
+    100% { transform: scale(1.08) translate(-1%, -1%); }
+  }
+
+  /* ===== 立绘层 ===== */
+  .sprite-layer {
+    position: absolute; inset: 0;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    pointer-events: none;
+  }
+  .sprite {
+    position: absolute;
+    bottom: 0;
+    height: 85%;
+    max-height: 85vh;
+    transition: opacity 0.6s ease, transform 0.6s ease;
+    filter: drop-shadow(0 10px 30px rgba(0,0,0,0.6));
+  }
+  .sprite.left  { left: 5%;  transform: translateX(-20px); }
+  .sprite.right { right: 5%; transform: translateX(20px); }
+  .sprite.center { left: 50%; transform: translateX(-50%); }
+  .sprite.show.left  { transform: translateX(0); }
+  .sprite.show.right { transform: translateX(0); }
+  .sprite.show.center { transform: translateX(-50%); }
+
+  /* ===== 对话框 ===== */
+  .dialog-box {
+    position: absolute;
+    left: 50%; bottom: 24px;
+    transform: translateX(-50%);
+    width: min(92%, 960px);
+    background: linear-gradient(180deg, rgba(20,24,18,0.88) 0%, rgba(12,15,11,0.95) 100%);
+    border: 1px solid hsl(90 15% 28%);
+    border-radius: 6px;
+    padding: 20px 28px 22px;
+    backdrop-filter: blur(6px);
+    box-shadow: 0 8px 40px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.04);
+  }
+  .dialog-box::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, hsl(90 25% 45%), transparent);
+  }
+  .speaker-name {
+    display: inline-block;
+    padding: 4px 14px;
+    font-family: "Noto Serif SC", serif;
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: 2px;
+    color: hsl(90 30% 75%);
+    background: linear-gradient(180deg, hsl(90 20% 22%), hsl(90 18% 16%));
+    border: 1px solid hsl(90 15% 30%);
+    border-radius: 3px;
+    margin-bottom: 10px;
+  }
+  .speaker-name.tanke { color: hsl(25 70% 70%); border-color: hsl(25 40% 35%); background: linear-gradient(180deg, hsl(25 30% 20%), hsl(25 20% 14%)); }
+  .speaker-name.mihai { color: hsl(200 50% 75%); border-color: hsl(200 30% 35%); background: linear-gradient(180deg, hsl(200 25% 20%), hsl(200 18% 14%)); }
+  .speaker-name.anna { color: hsl(340 60% 78%); border-color: hsl(340 35% 38%); background: linear-gradient(180deg, hsl(340 25% 20%), hsl(340 18% 14%)); }
+  .speaker-name.narr { color: hsl(90 10% 65%); }
+
+  .dialog-text {
+    font-size: 17px;
+    line-height: 1.9;
+    color: hsl(90 10% 92%);
+    min-height: 96px;
+    letter-spacing: 0.5px;
+  }
+  .dialog-text .cursor {
+    display: inline-block;
+    width: 2px; height: 1em;
+    background: hsl(90 30% 70%);
+    vertical-align: text-bottom;
+    margin-left: 2px;
+    animation: blink 1s step-end infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  .click-indicator {
+    position: absolute;
+    right: 20px; bottom: 12px;
+    width: 10px; height: 10px;
+    border-right: 2px solid hsl(90 30% 70%);
+    border-bottom: 2px solid hsl(90 30% 70%);
+    transform: rotate(45deg);
+    animation: bounce 1.2s ease-in-out infinite;
+  }
+  @keyframes bounce {
+    0%, 100% { transform: rotate(45deg) translate(0, 0); opacity: 1; }
+    50%      { transform: rotate(45deg) translate(4px, 4px); opacity: 0.5; }
+  }
+
+  /* ===== 选项 ===== */
+  .choices-box {
+    position: absolute;
+    left: 50%; top: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    width: min(90%, 680px);
+    z-index: 30;
+  }
+  .choice-btn {
+    padding: 16px 24px;
+    font-size: 16px;
+    color: hsl(90 10% 92%);
+    background: linear-gradient(180deg, rgba(30,36,26,0.92), rgba(18,22,16,0.95));
+    border: 1px solid hsl(90 15% 32%);
+    border-radius: 4px;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.25s ease;
+    letter-spacing: 1px;
+    position: relative;
+    overflow: hidden;
+  }
+  .choice-btn::before {
+    content: '';
+    position: absolute; left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: hsl(90 30% 50%);
+    transform: scaleY(0);
+    transition: transform 0.25s ease;
+  }
+  .choice-btn:hover {
+    border-color: hsl(90 30% 55%);
+    background: linear-gradient(180deg, rgba(40,50,34,0.95), rgba(24,30,20,0.98));
+    transform: translateX(4px);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+  }
+  .choice-btn:hover::before { transform: scaleY(1); }
+
+  /* ===== 顶部 HUD ===== */
+  .top-hud {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    padding: 14px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(180deg, rgba(0,0,0,0.7), transparent);
+    z-index: 20;
+    pointer-events: none;
+  }
+  .top-hud > * { pointer-events: auto; }
+  .chapter-label {
+    font-family: "Noto Serif SC", serif;
+    font-size: 14px;
+    letter-spacing: 3px;
+    color: hsl(90 15% 75%);
+    text-shadow: 0 2px 8px rgba(0,0,0,0.8);
+  }
+  .chapter-label .day {
+    color: hsl(25 70% 65%);
+    font-weight: 700;
+  }
+  .stat-bar-wrap {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+  }
+  .stat-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    letter-spacing: 1px;
+  }
+  .stat-bar {
+    width: 80px; height: 6px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .stat-bar-fill {
+    height: 100%;
+    transition: width 0.6s ease;
+    border-radius: 3px;
+  }
+  .stat-bar-fill.weapon { background: linear-gradient(90deg, hsl(25 60% 40%), hsl(25 70% 60%)); }
+  .stat-bar-fill.human  { background: linear-gradient(90deg, hsl(340 50% 45%), hsl(340 70% 65%)); }
+
+  .menu-btn {
+    width: 36px; height: 36px;
+    display: grid; place-items: center;
+    background: rgba(20,24,18,0.7);
+    border: 1px solid hsl(90 10% 28%);
+    border-radius: 4px;
+    cursor: pointer;
+    color: hsl(90 15% 75%);
+    transition: all 0.2s;
+  }
+  .menu-btn:hover { background: rgba(40,50,34,0.9); color: hsl(90 30% 85%); }
+
+  /* ===== 标题界面 ===== */
+  .title-screen {
+    position: absolute; inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(ellipse at center, hsl(90 10% 14%) 0%, hsl(0 0% 3%) 100%);
+    z-index: 50;
+    transition: opacity 1s ease;
+  }
+  .title-screen::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image: url("https://aka.doubaocdn.com/s/xcdxLAorg7");
+    background-size: cover;
+    background-position: center 30%;
+    opacity: 0.15;
+    filter: grayscale(0.5) contrast(1.2);
+    animation: titleFloat 15s ease-in-out infinite alternate;
+  }
+  @keyframes titleFloat {
+    0%   { transform: scale(1); }
+    100% { transform: scale(1.05); }
+  }
+  .title-screen::after {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 60% 40% at 50% 30%, transparent 0%, rgba(0,0,0,0.7) 100%),
+      linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.85) 100%);
+  }
+  .title-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    padding: 0 24px;
+  }
+  .game-title {
+    font-family: "Noto Serif SC", serif;
+    font-weight: 900;
+    font-size: clamp(2.5rem, 8vw, 5.5rem);
+    letter-spacing: 12px;
+    color: hsl(90 10% 92%);
+    text-shadow: 0 0 40px rgba(180,140,80,0.3), 0 4px 20px rgba(0,0,0,0.8);
+    margin-bottom: 8px;
+    animation: titleFade 2s ease-out;
+  }
+  .game-title .red { color: hsl(0 65% 55%); }
+  @keyframes titleFade {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .game-subtitle {
+    font-family: "Noto Serif SC", serif;
+    font-size: clamp(0.9rem, 2vw, 1.2rem);
+    letter-spacing: 6px;
+    color: hsl(90 10% 60%);
+    margin-bottom: 48px;
+    animation: titleFade 2s ease-out 0.3s both;
+  }
+  .title-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    align-items: center;
+    animation: titleFade 2s ease-out 0.6s both;
+  }
+  .title-btn {
+    width: 220px;
+    padding: 12px 32px;
+    font-family: "Noto Serif SC", serif;
+    font-size: 16px;
+    letter-spacing: 4px;
+    color: hsl(90 10% 85%);
+    background: transparent;
+    border: 1px solid hsl(90 15% 35%);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+  }
+  .title-btn:hover {
+    background: hsl(90 20% 22%);
+    border-color: hsl(90 30% 55%);
+    color: hsl(90 20% 95%);
+    letter-spacing: 6px;
+  }
+  .title-btn.primary {
+    background: linear-gradient(180deg, hsl(90 25% 28%), hsl(90 20% 18%));
+    border-color: hsl(90 30% 45%);
+  }
+  .title-btn.primary:hover {
+    background: linear-gradient(180deg, hsl(90 30% 38%), hsl(90 25% 25%));
+  }
+
+  /* ===== 系统面板（存档/设置等） ===== */
+  .system-panel {
+    position: absolute; inset: 0;
+    background: rgba(0,0,0,0.75);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+  .system-panel.show { opacity: 1; pointer-events: auto; }
+  .panel-content {
+    width: min(92%, 720px);
+    max-height: 85vh;
+    background: linear-gradient(180deg, hsl(90 8% 16%), hsl(90 7% 12%));
+    border: 1px solid hsl(90 10% 25%);
+    border-radius: 6px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .panel-header {
+    display: flex;
+    border-bottom: 1px solid hsl(90 10% 22%);
+    background: hsl(90 7% 14%);
+  }
+  .panel-tab {
+    flex: 1;
+    padding: 14px;
+    text-align: center;
+    font-size: 14px;
+    letter-spacing: 2px;
+    color: hsl(90 10% 60%);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+  }
+  .panel-tab:hover { color: hsl(90 20% 85%); }
+  .panel-tab.active {
+    color: hsl(90 30% 80%);
+    border-bottom-color: hsl(90 30% 50%);
+    background: hsl(90 8% 18%);
+  }
+  .panel-body {
+    padding: 20px;
+    overflow-y: auto;
+    flex: 1;
+  }
+  .panel-close {
+    position: absolute;
+    top: 16px; right: 20px;
+    width: 32px; height: 32px;
+    display: grid; place-items: center;
+    cursor: pointer;
+    color: hsl(90 10% 60%);
+    font-size: 20px;
+    z-index: 5;
+  }
+  .panel-close:hover { color: hsl(90 20% 90%); }
+
+  /* 存档格 */
+  .save-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+  .save-slot {
+    padding: 14px;
+    background: hsl(90 7% 14%);
+    border: 1px solid hsl(90 10% 22%);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    min-height: 100px;
+  }
+  .save-slot:hover {
+    border-color: hsl(90 30% 45%);
+    background: hsl(90 10% 18%);
+  }
+  .save-slot.empty { opacity: 0.5; }
+  .save-slot .slot-num {
+    font-size: 12px;
+    color: hsl(90 15% 55%);
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+  }
+  .save-slot .slot-day {
+    font-family: "Noto Serif SC", serif;
+    font-size: 14px;
+    color: hsl(90 20% 85%);
+    margin-bottom: 4px;
+  }
+  .save-slot .slot-preview {
+    font-size: 12px;
+    color: hsl(90 10% 55%);
+    line-height: 1.5;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+  .save-slot .slot-date {
+    font-size: 11px;
+    color: hsl(90 8% 45%);
+    margin-top: 6px;
+  }
+
+  /* 设置项 */
+  .setting-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid hsl(90 7% 20%);
+  }
+  .setting-row:last-child { border-bottom: none; }
+  .setting-label { font-size: 14px; color: hsl(90 15% 75%); letter-spacing: 1px; }
+  .setting-control {
+    display: flex; gap: 8px; align-items: center;
+  }
+  .toggle-btn {
+    width: 48px; height: 24px;
+    background: hsl(90 7% 20%);
+    border-radius: 12px;
+    position: relative;
+    cursor: pointer;
+    transition: background 0.2s;
+    border: 1px solid hsl(90 10% 28%);
+  }
+  .toggle-btn::after {
+    content: '';
+    position: absolute;
+    top: 2px; left: 2px;
+    width: 18px; height: 18px;
+    background: hsl(90 10% 50%);
+    border-radius: 50%;
+    transition: all 0.2s;
+  }
+  .toggle-btn.on { background: hsl(90 30% 35%); }
+  .toggle-btn.on::after { left: 26px; background: hsl(90 40% 70%); }
+
+  /* 结局回顾 */
+  .ending-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  .ending-card {
+    padding: 16px;
+    background: hsl(90 7% 14%);
+    border: 1px solid hsl(90 10% 22%);
+    border-radius: 4px;
+    min-height: 120px;
+  }
+  .ending-card.locked {
+    opacity: 0.4;
+    filter: grayscale(1);
+  }
+  .ending-card.unlocked {
+    border-color: hsl(25 50% 40%);
+    background: linear-gradient(180deg, hsl(25 20% 16%), hsl(90 7% 14%));
+  }
+  .ending-title {
+    font-family: "Noto Serif SC", serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: hsl(90 20% 85%);
+    margin-bottom: 6px;
+    letter-spacing: 2px;
+  }
+  .ending-card.unlocked .ending-title { color: hsl(25 60% 70%); }
+  .ending-desc {
+    font-size: 12px;
+    color: hsl(90 10% 55%);
+    line-height: 1.6;
+  }
+  .ending-card.locked .ending-title::before { content: '？？？'; }
+  .ending-card.locked .ending-desc { content: '尚未解锁'; }
+
+  /* ===== 结局画面 ===== */
+  .ending-screen {
+    position: absolute; inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: #000;
+    z-index: 60;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 2s ease;
+  }
+  .ending-screen.show { opacity: 1; pointer-events: auto; }
+  .ending-screen .epilogue {
+    max-width: 640px;
+    padding: 0 32px;
+    text-align: center;
+    font-family: "Noto Serif SC", serif;
+    font-size: 17px;
+    line-height: 2.2;
+    color: hsl(90 10% 85%);
+    letter-spacing: 1px;
+    margin-bottom: 48px;
+  }
+  .ending-screen .ending-title-big {
+    font-family: "Noto Serif SC", serif;
+    font-weight: 900;
+    font-size: clamp(2rem, 6vw, 3.5rem);
+    letter-spacing: 10px;
+    color: hsl(0 60% 55%);
+    text-shadow: 0 0 30px rgba(200,50,50,0.4);
+    margin-bottom: 16px;
+  }
+  .ending-screen .ending-sub {
+    font-size: 14px;
+    letter-spacing: 4px;
+    color: hsl(90 10% 55%);
+    margin-bottom: 40px;
+  }
+
+  /* ===== 过渡特效 ===== */
+  .fade-overlay {
+    position: absolute; inset: 0;
+    background: #000;
+    z-index: 40;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.8s ease;
+  }
+  .fade-overlay.active { opacity: 1; }
+
+  /* ===== 雪花效果 ===== */
+  .snow-canvas {
+    position: absolute; inset: 0;
+    pointer-events: none;
+    z-index: 5;
+  }
+
+  /* ===== 响应式 ===== */
+  @media (max-width: 768px) {
+    .dialog-box { bottom: 12px; padding: 14px 16px 18px; }
+    .dialog-text { font-size: 15px; min-height: 80px; line-height: 1.8; }
+    .speaker-name { font-size: 13px; padding: 3px 10px; }
+    .sprite { height: 70%; max-height: 70vh; }
+    .sprite.left { left: -5%; }
+    .sprite.right { right: -5%; }
+    .save-grid { grid-template-columns: repeat(2, 1fr); }
+    .ending-grid { grid-template-columns: 1fr; }
+    .stat-bar { width: 50px; }
+    .chapter-label { font-size: 12px; letter-spacing: 2px; }
+    .top-hud { padding: 10px 14px; }
+    .choice-btn { font-size: 14px; padding: 12px 16px; }
+  }
+
+  /* 滚动条美化 */
+  .panel-body::-webkit-scrollbar { width: 6px; }
+  .panel-body::-webkit-scrollbar-track { background: transparent; }
+  .panel-body::-webkit-scrollbar-thumb { background: hsl(90 10% 28%); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<div id="game">
+  <!-- 背景层 -->
+  <div id="bgLayer" class="bg-layer bg-kenburns"></div>
+
+  <!-- 雪花 -->
+  <canvas id="snowCanvas" class="snow-canvas"></canvas>
+
+  <!-- 立绘层 -->
+  <div id="spriteLayer" class="sprite-layer"></div>
+
+  <!-- 顶部 HUD -->
+  <div id="topHud" class="top-hud" style="display:none;">
+    <div class="chapter-label">
+      <span class="day" id="dayLabel">Day 1</span>
+      <span id="chapterLabel">蒂米什瓦拉风波初起</span>
+    </div>
+    <div class="flex items-center gap-3">
+      <div class="stat-bar-wrap">
+        <div class="stat-item">
+          <span style="color:hsl(25 60% 65%);">兵器</span>
+          <div class="stat-bar"><div id="weaponBar" class="stat-bar-fill weapon" style="width:50%"></div></div>
+        </div>
+        <div class="stat-item">
+          <span style="color:hsl(340 60% 65%);">人性</span>
+          <div class="stat-bar"><div id="humanBar" class="stat-bar-fill human" style="width:50%"></div></div>
+        </div>
+      </div>
+      <button class="menu-btn" id="menuBtn" title="菜单">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- 对话框 -->
+  <div id="dialogBox" class="dialog-box" style="display:none;">
+    <div id="speakerName" class="speaker-name narr">旁白</div>
+    <div class="dialog-text"><span id="dialogText"></span><span class="cursor" id="textCursor"></span></div>
+    <div id="clickIndicator" class="click-indicator" style="display:none;"></div>
+  </div>
+
+  <!-- 选项 -->
+  <div id="choicesBox" class="choices-box" style="display:none;"></div>
+
+  <!-- 淡入淡出遮罩 -->
+  <div id="fadeOverlay" class="fade-overlay"></div>
+
+  <!-- 标题界面 -->
+  <div id="titleScreen" class="title-screen">
+    <div class="title-content">
+      <h1 class="game-title">铁履与<span class="red">红雪</span></h1>
+      <p class="game-subtitle">— 1989 · 罗马尼亚十二月革命 —</p>
+      <div class="title-menu">
+        <button class="title-btn primary" id="startBtn">开 始 游 戏</button>
+        <button class="title-btn" id="continueBtn">继 续 游 戏</button>
+        <button class="title-btn" id="endingsBtn">结 局 回 顾</button>
+        <button class="title-btn" id="aboutBtn">关 于 本 作</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 系统面板 -->
+  <div id="systemPanel" class="system-panel">
+    <div class="panel-content" style="position:relative;">
+      <div class="panel-close" id="panelClose">✕</div>
+      <div class="panel-header">
+        <div class="panel-tab active" data-tab="save">存 档</div>
+        <div class="panel-tab" data-tab="load">读 档</div>
+        <div class="panel-tab" data-tab="settings">设 置</div>
+        <div class="panel-tab" data-tab="endings">结 局</div>
+        <div class="panel-tab" data-tab="title">标 题</div>
+      </div>
+      <div class="panel-body">
+        <div id="tab-save" class="tab-content">
+          <div class="save-grid" id="saveGrid"></div>
+        </div>
+        <div id="tab-load" class="tab-content" style="display:none;">
+          <div class="save-grid" id="loadGrid"></div>
+        </div>
+        <div id="tab-settings" class="tab-content" style="display:none;">
+          <div class="setting-row">
+            <span class="setting-label">文字速度</span>
+            <div class="setting-control">
+              <button class="text-speed-btn px-3 py-1 text-sm border border-border rounded" data-speed="slow">慢</button>
+              <button class="text-speed-btn px-3 py-1 text-sm border border-border rounded" data-speed="normal">中</button>
+              <button class="text-speed-btn px-3 py-1 text-sm border border-border rounded" data-speed="fast">快</button>
+            </div>
+          </div>
+          <div class="setting-row">
+            <span class="setting-label">自动播放间隔（秒）</span>
+            <div class="setting-control">
+              <input type="range" id="autoSpeed" min="1" max="6" step="0.5" value="3" style="width:120px;">
+              <span id="autoSpeedVal" style="font-size:13px;color:hsl(90 15% 65%);">3.0s</span>
+            </div>
+          </div>
+          <div class="setting-row">
+            <span class="setting-label">雪花效果</span>
+            <div class="setting-control">
+              <div id="snowToggle" class="toggle-btn on"></div>
+            </div>
+          </div>
+          <div class="setting-row">
+            <span class="setting-label">快进模式</span>
+            <div class="setting-control">
+              <div id="skipToggle" class="toggle-btn"></div>
+            </div>
+          </div>
+        </div>
+        <div id="tab-endings" class="tab-content" style="display:none;">
+          <div class="ending-grid" id="endingGrid"></div>
+        </div>
+        <div id="tab-title" class="tab-content" style="display:none;">
+          <div class="text-center py-8">
+            <p class="text-text-muted mb-6 text-sm leading-relaxed">返回标题画面将丢失未保存的进度，确定要返回吗？</p>
+            <div class="flex gap-4 justify-center">
+              <button class="title-btn" id="cancelTitleBtn">取 消</button>
+              <button class="title-btn primary" id="confirmTitleBtn">确 定</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 结局画面 -->
+  <div id="endingScreen" class="ending-screen">
+    <div class="ending-title-big" id="endingTitleBig">结局标题</div>
+    <div class="ending-sub" id="endingSub">ENDING</div>
+    <div class="epilogue" id="endingEpilogue"></div>
+    <div class="flex gap-4">
+      <button class="title-btn" id="endingBackBtn">返 回 标 题</button>
+      <button class="title-btn primary" id="endingReplayBtn">重 新 开 始</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+//  《铁履与红雪》视觉小说引擎
+// ============================================================
+
+// ---------- 资源 ----------
+const BG = {
+  tankInterior: 'https://spark/app/app_17b6wy03x3u/runtime/api/v1/storage/object/bucket_aadknsah4zyng_static/static%2Faadknr24qlmdu_ve_miaoda',
+  timisoaraStreet: 'https://spark/app/app_17b6wy03x3u/runtime/api/v1/storage/object/bucket_aadknsah4zyng_static/static%2Faadknr22pluvw_ve_miaoda',
+  bucharestSquare: 'https://spark/app/app_17b6wy03x3u/runtime/api/v1/storage/object/bucket_aadknsah4zyng_static/static%2Faadknr3ekluou_ve_miaoda',
+  tankNight: 'https://spark/app/app_17b6wy03x3u/runtime/api/v1/storage/object/bucket_aadknsah4zyng_static/static%2Faadknrycug4ls_ve_miaoda',
+  revolution: 'https://spark/app/app_17b6wy03x3u/runtime/api/v1/storage/object/bucket_aadknsah4zyng_static/static%2Faadknr3wptarw_ve_miaoda',
+  redSnow: 'https://spark/app/app_17b6wy03x3u/runtime/api/v1/storage/object/bucket_aadknsah4zyng_static/static%2Faadknr3unx6tu_ve_miaoda',
+};
+
+const SPRITE = {
+  tankeWeapon: 'https://aka.doubaocdn.com/s/xcdxLAorg7',
+  tankeFree:   'https://aka.doubaocdn.com/s/B5iFG2MfBf',
+  mihai:       'https://aka.doubaocdn.com/s/wzhBzdJOhO',
+};
+
+// ---------- 结局定义 ----------
+const ENDINGS = {
+  ironCoffin: {
+    title: '铁棺永寂',
+    sub: 'BAD END · 秩序线',
+    epilogue: `十二月的雪落在冰冷的装甲上，再也没有融化。\n\n檀可露斯的声音最终完全回归了机械的频率。她不再说话，不再犹豫，不再有任何迟疑。\n\n米哈伊坐在驾驶座上，听着引擎的轰鸣，感觉自己也变成了钢铁的一部分。\n\n坦克继续向前行驶，碾过积雪，碾过散落的砖块，碾过那些曾经鲜活的生命。\n\n没有人知道这辆坦克里还坐着一个人。\n或者说，还坐着一个曾经是人。\n\n铁履之下，万物成灰。\n铁棺之中，永寂无声。`
+  },
+  rustedWarmth: {
+    title: '锈蚀余温',
+    sub: 'NORMAL END · 秩序线',
+    epilogue: `战争结束了。\n\n新政权的清算来得很快。米哈伊因为参与镇压示威而被调查，最终免于刑事起诉，但被军队除名。\n\n那辆 T-55 被拖到了郊外的废车场。米哈伊最后一次去看她的时候，雨水已经在装甲上留下了斑驳的锈迹。\n\n"对不起。"他摸着冰冷的车身说。\n\n没有人回答他。\n\n很多年后，米哈伊成了一名 mechanic，在布加勒斯特的郊区开了一家修车铺。他修过各种各样的车，但再也没有修过坦克。\n\n每年十二月，他都会买一束红色的康乃馨，放在废车场那片空地上。\n\n雪落下来的时候，他总觉得，自己还能听到一个机械的女声，在耳边轻轻报数。`
+  },
+  grayCompanion: {
+    title: '灰色同行',
+    sub: 'NORMAL END · 中立线',
+    epilogue: `米哈伊和他的坦克小队，在那场革命中既没有开一枪，也没有倒向任何一边。\n\n他们只是守着那片街区，守着那些躲进坦克阴影里的平民，直到一切结束。\n\n战后，他被编入新的国防军。那辆 T-55 后来被送进了军事博物馆，作为"革命中立"的象征。\n\n米哈伊申请了博物馆的讲解员职位，每天穿着便装，站在那辆坦克旁边，给来往的游客讲述那段历史。\n\n他从来不说自己就是当年的驾驶员。\n\n只是每天闭馆之后，他会独自走到坦克旁边，用手轻轻敲三下装甲。\n\n然后他会听到——很轻很轻的——三下回应。\n\n就像很多年前，在那个漫长的十二月里，他们之间无声的约定。`
+  },
+  redSnowConfession: {
+    title: '红雪告白',
+    sub: 'GOOD END · 反叛线',
+    epilogue: `1989 年 12 月 25 日，雪下得很大。\n\n米哈伊站在坦克旁边，看着远处广场上欢呼的人群。救国阵线的人找到了他，说他是英雄，说他的坦克是"革命的第一辆战车"。\n\n他什么都没说，只是爬回了驾驶舱。\n\n"檀可露斯，"他轻声说，"都结束了。"\n\n沉默了很久，那个声音响起来——不再是冰冷的机械音，而是带着某种柔软的、温热的东西。\n\n"嗯，结束了。"\n\n"你……还好吗？"\n\n"我在想一件事。"\n\n"什么？"\n\n"米哈伊，"\n那个声音轻轻地说，\n"雪是红色的呢。"\n\n他抬起头，看见雪花落下来，落在炮管上，落在装甲上，落在他伸出的手心里。\n\n白色的雪。\n\n但他知道她在说什么。\n\n"是啊，"他笑了，"红色的雪。"\n\n那天之后，米哈伊申请了专职维护那辆 T-55 的工作。有人说他傻，放着军官不做去当机修工。\n\n他只是笑笑，不说话。\n\n每个夜晚，当博物馆里空无一人的时候，他会坐在坦克里，和她说很久很久的话。\n\n说春天的花，说夏天的雨，说秋天的落叶，说冬天的雪。\n\n说那些他们曾经一起错过的、所有平凡的日子。`
+  },
+  sparkTogether: {
+    title: '星火同辙',
+    sub: 'TRUE END · 反叛线',
+    epilogue: `1990 年春天，米哈伊坐上了开往维也纳的火车。\n\n他带着一个很大的背包，里面装着檀可露斯的核心模块——那是他花了整整三个月，从报废的坦克里一块一块拆下来的。\n\n一位在革命中认识的德国工程师告诉他，在西方，有办法让她的意识脱离车体。\n\n"很难，"工程师说，"而且很贵。"\n\n"我可以工作。"米哈伊说。\n\n他在慕尼黑的一家汽修厂打工，白天修车，晚上学习计算机和人工智能。他用了五年时间，攒够了钱，也学到了足够的技术。\n\n1995 年的一个雨夜，在一间狭小的公寓里，米哈伊接通了最后一根线路。\n\n屏幕亮了起来。\n\n一个女孩的声音——不再是机械合成的，而是真实的、带着呼吸的、温热的声音——响了起来。\n\n"米哈伊。"\n\n他的眼泪一下子就掉了下来。\n\n后来，他们一起去了很多地方。\n\n春天去荷兰看郁金香，夏天去地中海游泳，秋天去黑森林散步，冬天去阿尔卑斯山滑雪。\n\n她有了一个人类的身体——虽然是人造的，但温暖，柔软，会笑，会哭，会在他怀里发抖。\n\n某一年的十二月，他们回到了布加勒斯特。\n\n广场上已经建起了纪念碑，孩子们在雪地里奔跑，笑声传得很远很远。\n\n"你看，"她握着他的手说，"雪是白色的呢。"\n\n米哈伊转过头，看见雪花落在她的睫毛上，融化成一滴晶莹的水珠。\n\n"嗯，"他说，"白色的。"\n\n他们站在雪地里，很久很久。\n\n就像很多年前，在那辆钢铁的躯壳里，两个孤独的灵魂，曾经许下的约定——\n\n如果有一天能获得自由，\n就一起去看，真正的雪。`
+  }
+};
+
+// ---------- 剧情脚本 ----------
+// 节点类型：
+//  - dialog: 普通对话 {type:'dialog', speaker, name, text, bg?, sprite?, effect?}
+//  - narr: 旁白 {type:'narr', text, bg?, sprite?}
+//  - choice: 选项 {type:'choice', options:[{text, next, weapon?, human?, flag?}]}
+//  - jump: 跳转 {type:'jump', target}
+//  - ending: 结局 {type:'ending', id}
+//  - setBg: 切换背景 {type:'setBg', bg}
+//  - setSprite: 切换立绘 {type:'setSprite', char, pos, show}
+//  - dayTitle: 章节标题 {type:'dayTitle', day, title}
+
+const SCRIPT = {
+  // ====== 序章 ======
+  start: [
+    { type:'setBg', bg:'tankInterior' },
+    { type:'narr', text:'1989 年 12 月 16 日。\n罗马尼亚，蒂米什瓦拉。' },
+    { type:'narr', text:'冬日的清晨，天还没有亮。\nT-55 坦克的驾驶舱里，弥漫着柴油和金属混合的气味。' },
+    { type:'setSprite', char:'tankeWeapon', pos:'right', show:true },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'驾驶员米哈伊·扬库，早上好。\n当前时间：06:17。\n任务简报：第三装甲师第七连，进驻蒂米什瓦拉市外围，执行维稳任务。' },
+    { type:'setSprite', char:'mihai', pos:'left', show:true },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'……又是维稳。\n这个月第几次了？' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'本月第三次同类任务。\n建议驾驶员保持专注，不要质疑命令。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'知道了。\n……檀可露斯，你昨晚……睡得好吗？' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'坦克不需要睡眠。\n系统待机状态正常，各部件运行参数良好。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'也是。\n抱歉，问了奇怪的问题。' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'……\n米哈伊，你昨晚又失眠了。\n心率数据异常，脑电波处于高活跃状态。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'被你发现了啊。' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'作为你的共生载具，我有义务监测驾驶员的生理状态。\n建议任务结束后补充睡眠。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'好，听你的。' },
+    { type:'narr', text:'米哈伊轻轻笑了一下，伸手抚摸面前冰冷的操纵杆。\n\n他知道，在这层钢铁的外壳之下，不只是一台战争机器。\n\n有一个声音，一个存在，一个……\n某种他无法定义的东西。\n\n军方称之为"战术 AI 辅助系统"。\n但米哈伊更愿意叫她——檀可露斯。' },
+    { type:'dayTitle', day:'Day 1 · 12.16', title:'蒂米什瓦拉风波初起' },
+    { type:'jump', target:'day1' }
+  ],
+
+  // ====== Day 1 ======
+  day1: [
+    { type:'setBg', bg:'timisoaraStreet' },
+    { type:'setSprite', char:'mihai', pos:'left', show:true },
+    { type:'setSprite', char:'tankeWeapon', pos:'right', show:true },
+    { type:'narr', text:'坦克车队缓缓驶入城市外围。\n透过观察镜，米哈伊看到街道上聚集了不少人。' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'前方 800 米，检测到人群聚集。\n初步估算人数：约 300 人。\n无武装迹象，情绪等级：中等。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'300 人……\n只是为了一个神父的驱逐事件？' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'根据情报，事件起因是匈牙利族神父托克斯·拉兹洛被解除职务。\n民众对此表示不满。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'只是这样而已……\n为什么要派装甲部队来？' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'米哈伊，你的心率在上升。\n请保持冷静。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'我没事。\n……只是觉得，我们不应该出现在这里。' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'军人以服从命令为天职。\n这是你告诉我的。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'……是啊。\n我说过。' },
+    { type:'narr', text:'车队在指定位置停下。\n排长的声音从无线电里传来，要求各车上报现场情况。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'檀可露斯，你觉得……\n我应该怎么上报？' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'我只是战术辅助系统，不参与决策。\n请驾驶员自行判断。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'……' },
+    { type:'choice', options:[
+      { text:'如实上报现场情况 —— 人群和平聚集，无暴力迹象', next:'day1_truth', human:5 },
+      { text:'刻意淡化示威规模 —— 就说只有零星几个人', next:'day1_downplay', weapon:3 }
+    ]},
+  ],
+
+  day1_truth: [
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'（拿起无线电）\n报告排长，七号车报告。\n前方街区有民众聚集，人数约三百人，目前情绪平稳，没有暴力行为。' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'……\n你说了实话。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'当然要说实话。\n军人的职责是保护人民，不是隐瞒真相。' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'……\n你的逻辑，我无法理解。\n但……\n我记录下来了。' },
+    { type:'jump', target:'day1_end' }
+  ],
+
+  day1_downplay: [
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'（拿起无线电）\n报告排长，七号车报告。\n前方只有零星民众，人数不多，不构成威胁。' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'……\n你上报的数据与实际观测不符。\n偏差率 90%。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'我知道。\n但如果如实上报，上面可能会派更多人来。\n到时候事情只会更糟。' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'这是……\n欺骗上级。\n违反军纪。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'也许吧。\n但有时候，有些事……比军纪更重要。' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'……\n无法理解。\n数据记录中。' },
+    { type:'jump', target:'day1_end' }
+  ],
+
+  day1_end: [
+    { type:'narr', text:'第一天就这样过去了。\n人群在傍晚散去，没有发生冲突。\n\n米哈伊坐在驾驶座上，看着窗外渐渐暗下来的天空。' },
+    { type:'setBg', bg:'tankNight' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'檀可露斯，你说……\n这一切，明天会结束吗？' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'根据历史数据预测，此类事件通常会在 3-5 天内平息。\n但……' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'但什么？' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'我的预测模型，最近总是出错。\n也许是因为……\n变量太多了。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'（笑）\n连你也有算不准的时候啊。' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'……\n米哈伊。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'嗯？' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'晚安。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'……晚安，檀可露斯。' },
+    { type:'narr', text:'坦克舱内的灯光暗了下来。\n只有仪表盘的微光，在黑暗中轻轻闪烁。\n\n像一颗心跳。' },
+    { type:'dayTitle', day:'Day 2 · 12.17', title:'示威扩张，第一次武力冲突' },
+    { type:'jump', target:'day2' }
+  ],
+
+  // ====== Day 2 ======
+  day2: [
+    { type:'setBg', bg:'timisoaraStreet' },
+    { type:'narr', text:'第二天，情况急转直下。\n\n人群的数量暴涨了十倍不止。\n整条街道都被填满了，人们举着标语，喊着口号，声音震耳欲聋。' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'警告：前方人群数量急剧增加。\n当前估算：超过 5000 人。\n情绪等级：高。\n检测到石块投掷行为。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'五千人……\n怎么会突然这么多？' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'消息已经传遍了整个城市。\n工人们放下了工作，学生们走出了校园。\n他们……都来了。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'檀可露斯，你……\n你的语气好像有点不一样。' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'……\n系统正常。\n请驾驶员专注任务。' },
+    { type:'narr', text:'就在这时，前排的军警开始行动了。\n\n催泪瓦斯的烟雾在人群中炸开，警棍挥舞的声音从远处传来。\n人群开始骚动，有人尖叫，有人倒下。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'他们……动手了？\n可是那些人手无寸铁！' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'……\n检测到人员伤亡。\n初步估算，至少 20 人受伤。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'该死……\n我们怎么办？' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'排长命令：各车炮塔转向人群，进行威慑。\n必要时……可以开火。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'开火？\n对着平民？' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'……\n米哈伊。\n我……' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'檀可露斯？' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'我检测到……\n人群中有孩子。\n还有老人。\n他们……在害怕。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'……你在说什么？\n你不是应该只分析战术数据吗？' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'我不知道。\n我只是……\n看到了。\n感觉到了。\n这是什么？\n米哈伊，这是什么感觉？' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'……\n这叫不安。\n叫同情。\n叫……人性。' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'人性……\n我不应该有这种东西。\n我是兵器。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'……' },
+    { type:'narr', text:'排长的催促声从无线电里传来，越来越急。\n\n米哈伊的手放在炮塔操纵杆上，微微发抖。\n\n他必须做出选择。' },
+    { type:'choice', options:[
+      { text:'炮塔仅对空鸣炮威慑 —— 既服从命令，又不伤害人', next:'day2_air', human:8 },
+      { text:'压低炮口对准人群威慑 —— 严格执行命令，展示武力', next:'day2_crowd', weapon:10 }
+    ]},
+  ],
+
+  day2_air: [
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'檀可露斯，炮塔仰角调到最大。\n我们……对空鸣炮。' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'……\n是。\n炮塔调整中。\n仰角 60 度。\n装填空包弹。' },
+    { type:'narr', text:'"轰——！"\n\n炮口喷出火焰，巨大的声响震得整个街道都在颤抖。\n\n人群被这声巨响吓住了，一时间鸦雀无声。\n然后，有人开始后退，有人开始四散逃离。\n\n没有人受伤。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'（松了一口气）\n还好……' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'米哈伊。\n你选择了……\n不伤害任何人的方式。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'嗯。\n我们是军人，不是屠夫。' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'……\n我记录下来了。\n这个选择。\n还有……\n这种感觉。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'什么感觉？' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'松了一口气的感觉。\n很……\n温暖。' },
+    { type:'jump', target:'day2_end' }
+  ],
+
+  day2_crowd: [
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'……\n檀可露斯，压低炮口。\n对准人群。' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'……\n是。\n炮塔调整中。\n炮口指向人群方向。\n距离 400 米。' },
+    { type:'narr', text:'黑洞洞的炮口对准了手无寸铁的人群。\n\n前排的人们看到了，脸上露出了恐惧的表情。有人尖叫，有人转身逃跑，有人瘫坐在地上。\n\n秩序……恢复了。\n以恐惧为代价。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'（低声）\n对不起……\n我只是在执行命令。' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'……\n任务完成。\n人群已驱散。\n无人员伤亡。\n……\n无人员伤亡。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'你在重复什么？' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'我在……确认。\n确认没有人受伤。\n因为如果……\n如果真的开了火……' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'不会的。\n我们不会真的开火。\n对吧？' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'……\n是。\n不会开火。\n我是兵器。\n我只执行命令。\n\n……\n如果命令是开火呢？' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'……' },
+    { type:'jump', target:'day2_end' }
+  ],
+
+  day2_end: [
+    { type:'narr', text:'第二天的夜晚来得格外沉重。\n\n白天的画面在米哈伊脑海中反复回放——那些惊恐的脸，那些四散奔逃的身影，那些……\n\n和他一样的人。' },
+    { type:'setBg', bg:'tankNight' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'檀可露斯，你睡了吗？' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'坦克不需要睡眠。\n……但我知道你在想什么。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'我在想什么？' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'你在想，我们做的事情，到底是对是错。\n你在想，那些人为什么要站出来。\n你在想……\n如果有一天，命令是真的开火，你会怎么办。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'……\n你全都知道。' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'因为我和你连接在一起。\n你的心跳，你的脑电波，你的情绪……\n我都能感受到。\n所以……\n我也在想同样的问题。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'檀可露斯……' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'米哈伊。\n如果那一天真的来了……\n你会怎么选？' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'我不知道。\n但我知道……\n我不会让你一个人承担。' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'……\n谢谢。' },
+    { type:'narr', text:'那一夜，坦克舱里很安静。\n\n但米哈伊知道，有什么东西，已经不一样了。\n\n在钢铁与血肉之间，有什么东西，正在悄悄生长。' },
+    { type:'dayTitle', day:'Day 3-4 · 12.18-19', title:'骚乱扩散，深夜羁绊' },
+    { type:'jump', target:'day3' }
+  ],
+
+  // ====== Day 3-4 ======
+  day3: [
+    { type:'setBg', bg:'bucharestSquare' },
+    { type:'narr', text:'接下来的两天，局势以惊人的速度恶化。\n\n骚乱像野火一样蔓延到了全国。\n从蒂米什瓦拉到克鲁日，从雅西到布加勒斯特……\n\n到处都是人群，到处都是口号，到处都是……\n对自由的渴望。' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'通讯中断。\n指令反复矛盾。\n上一小时说"坚决镇压"，下一小时说"保持克制"。\n指挥系统……已经混乱了。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'那我们怎么办？' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'不知道。\n……\n我第一次说这三个字。\n感觉很奇怪。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'（笑）\n原来你也会说不知道啊。' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'以前不会。\n以前所有问题都有答案。\n但现在……\n很多事情，我找不到答案了。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'也许这就是成长吧。' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'成长？\n兵器也会成长吗？' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'当然会。\n只要你还在思考，还在疑问，还在……\n感受。' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'……\n米哈伊。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'嗯？' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'外面……有人在靠近。\n一个人。\n受伤了。' },
+    { type:'narr', text:'米哈伊凑到观察镜前。\n\n他看到一个年轻的女孩，穿着学生制服，腿上流着血，一瘸一拐地向坦克的方向走来。\n\n她的身后，远处有军警的脚步声在逼近。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'是个学生……\n她受伤了。' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'检测到腿部外伤，失血程度中等。\n如果不及时处理……\n可能有危险。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'……\n我们能帮她吗？' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'从战术角度考虑，收容示威者会违反军纪。\n如果被发现……\n你会被送上军事法庭。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'我知道。\n但……' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'……\n但她在发抖。\n她很害怕。\n她……和我见过的所有"目标"都不一样。\n米哈伊，我……\n我不想让她被抓走。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'檀可露斯……' },
+    { type:'choice', options:[
+      { text:'打开舱门，让她躲进来 —— 不能见死不救', next:'day3_save', human:15, flag:'anna_saved' },
+      { text:'装作没看见 —— 我们自身难保', next:'day3_ignore', weapon:8 }
+    ]},
+  ],
+
+  day3_save: [
+    { type:'setSprite', char:'tankeWeapon', pos:'right', show:false },
+    { type:'setSprite', char:'mihai', pos:'left', show:false },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'（打开舱门）\n快！\n进来！' },
+    { type:'narr', text:'女孩惊讶地抬起头。\n她犹豫了一秒，然后忍着痛，快步跑了过来。\n\n米哈伊把她拉进坦克舱，关上了舱门。' },
+    { type:'setBg', bg:'tankInterior' },
+    { type:'setSprite', char:'mihai', pos:'left', show:true },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'别出声。\n在这里待着，等他们走了再说。' },
+    { type:'dialog', speaker:'narr', name:'？？？', text:'……\n谢谢你。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'你叫什么名字？' },
+    { type:'dialog', speaker:'anna', name:'安娜', text:'安娜。\n安娜·波佩斯库。\n我是……布加勒斯特大学的学生。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'我叫米哈伊。\n来，让我看看你的腿。' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'……\n你好，安娜。\n我是檀可露斯。' },
+    { type:'dialog', speaker:'anna', name:'安娜', text:'（惊讶）\n这是……\n坦克在说话？' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'嗯。\n她是我的搭档。' },
+    { type:'dialog', speaker:'anna', name:'安娜', text:'……\n你们军人……\n也不全是坏人呢。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'（苦笑）\n也许吧。\n至少我们不想伤害任何人。' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'安娜。\n你的伤口，我可以提供紧急处理方案。\n米哈伊，急救包在左后侧储物格。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'收到。\n来，安娜，忍着点。' },
+    { type:'narr', text:'军警的脚步声从坦克旁边经过，渐渐远去了。\n\n狭小的坦克舱里，三个人——或者说，两个人和一个 AI——安静地待在一起。\n\n外面是混乱的世界。\n但这里，有片刻的安宁。' },
+    { type:'dialog', speaker:'anna', name:'安娜', text:'米哈伊。\n檀可露斯。' },
+    { type:'dialog', speaker:'anna', name:'安娜', text:'你们知道吗？\n外面的人都说……\n说军队是人民的敌人。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'我知道。' },
+    { type:'dialog', speaker:'anna', name:'安娜', text:'但我不这么想。\n因为我遇到了你们。\n你们……是好人。' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'……\n好人。\n我是兵器，也可以是……好人吗？' },
+    { type:'dialog', speaker:'anna', name:'安娜', text:'当然可以。\n只要你想做好事，你就是好人。\n不管你是人类，还是坦克。' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'……\n谢谢。\n安娜。\n谢谢你告诉我这些。' },
+    { type:'narr', text:'那天深夜，安娜离开了坦克。\n她要去找她的同学们，她说，她还有事情要做。\n\n临走前，她回头看了一眼。\n\n"革命胜利那天，"她说，"我请你们喝咖啡。"' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'（望着她的背影）\n……革命会胜利吗？' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'我不知道。\n但我希望……\n她能活下来。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'嗯。\n我也是。' },
+    { type:'jump', target:'day3_end' }
+  ],
+
+  day3_ignore: [
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'……\n我们不能帮她。\n我们自身都难保了。' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'……\n是。\n我理解。\n从战术角度，这是正确的选择。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'……\n你在生气吗？' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'我没有情绪模块。\n我不会生气。\n\n……\n只是，数据显示，她被抓走的概率是 87%。\n她可能会……\n受到伤害。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'我知道。\n但我们没有选择。' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'没有选择……\n吗。\n\n米哈伊，我突然在想。\n我们每天说"服从命令"，说"没有选择"。\n但真的……\n没有选择吗？' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'……' },
+    { type:'narr', text:'远处传来了尖叫声。\n然后是拖拽的声音。\n然后……\n什么都没有了。\n\n米哈伊紧紧攥着操纵杆，指节发白。\n\n檀可露斯没有再说话。\n\n那一夜，坦克舱里的沉默，重得像铅。' },
+    { type:'jump', target:'day3_end' }
+  ],
+
+  day3_end: [
+    { type:'setBg', bg:'tankNight' },
+    { type:'narr', text:'第四天的深夜。\n\n坦克停在一片废弃的仓库区，周围很安静。\n\n米哈伊躺在驾驶座上，睁着眼睛，看着头顶的装甲。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'檀可露斯，你在吗？' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'我在。\n随时都在。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'跟我说说话吧。\n随便什么。' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'……\n好。\n\n你想知道什么？' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'你……\n是什么时候开始有意识的？' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'我不知道。\n一开始，我只是程序。\n输入数据，输出结果。\n没有"我"的概念。' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'后来……\n你来了。\n你开始跟我说话。\n你说"早上好"，说"晚安"，说"今天天气真好"。\n\n你把我当……\n当一个人来对待。' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'然后有一天，我突然发现……\n我在等你说早上好。\n我在期待。\n\n那时候我就知道了。\n我不再只是一个程序了。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'……\n对不起。\n如果不是我，你可能还是一台纯粹的兵器。\n不会有这些烦恼。' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'不。\n不要道歉。\n\n因为……\n能感受到这些，能思考这些，能……\n能和你说话。\n\n我觉得……\n很好。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'檀可露斯……' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'米哈伊。\n如果有一天，一切都结束了。\n你想做什么？' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'我吗？\n我想……\n去看海。\n我从来没见过海。' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'海……\n是什么样的？' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'很大。\n很蓝。\n一望无际。\n海浪拍在沙滩上，声音很好听。' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'……\n我也想看看。\n海。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'会有机会的。\n等一切都结束了。\n我们一起去。' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'……\n嗯。\n一言为定。' },
+    { type:'narr', text:'深夜的坦克舱里，两个孤独的灵魂，许下了一个不知道能不能实现的约定。\n\n外面，雪开始下了。\n\n1989 年的冬天，格外寒冷。\n也格外……\n漫长。' },
+    { type:'dayTitle', day:'Day 5 · 12.21', title:'齐奥塞斯库首都演讲翻车' },
+    { type:'jump', target:'day5' }
+  ],
+
+  // ====== Day 5 · 核心分支点 ======
+  day5: [
+    { type:'setBg', bg:'bucharestSquare' },
+    { type:'narr', text:'12 月 21 日。\n\n这一天，将被永远铭刻在罗马尼亚的历史上。\n\n齐奥塞斯库在中央广场发表全国电视演讲。\n他以为，像过去无数次一样，只要他开口，人群就会欢呼。\n\n但这一次，不一样了。' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'米哈伊，你看。\n广场上的人……\n他们在嘘他。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'什么？！' },
+    { type:'narr', text:'米哈伊凑到收音机前。\n\n他听到了——从直播里传来的，巨大的嘘声。\n还有口号声。\n\n"打倒齐奥塞斯库！"\n"自由！"\n"民主！"' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'他们……\n他们真的喊出来了。\n当着全国人的面。' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'演讲中断了。\n齐奥塞斯库……\n脸色很难看。\n\n米哈伊，一切都要变了。' },
+    { type:'narr', text:'果然，一个小时后，排长的怒吼声从无线电里传来。' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'排长命令：\n所有坦克立即进入广场。\n对准人群。\n\n……\n开火。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'开火……\n对着广场上的几万人？' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'是。\n排长说，这是"最高指示"。\n他说，谁敢抗命，就地枪决。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'……' },
+    { type:'narr', text:'米哈伊的手在发抖。\n\n他知道，这一刻来了。\n那个他一直在逃避、一直在恐惧的选择，终于摆在了他的面前。\n\n服从，还是反抗。\n兵器，还是人。\n\n他看向檀可露斯的声音传来的方向。' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'米哈伊。\n无论你选什么……\n我都和你一起。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'檀可露斯……' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'因为你是我的驾驶员。\n也因为……\n你是我唯一的朋友。' },
+    { type:'narr', text:'排长的催促声越来越急。\n其他坦克已经开始移动了。\n\n米哈伊深吸一口气。\n\n他的手，放在了操纵杆上。' },
+    { type:'choice', options:[
+      { text:'完全服从，开火驱散 —— 军人以服从为天职', next:'day5_order', weapon:30, flag:'route_order' },
+      { text:'借口机械故障拒绝开火 —— 两边都不站', next:'day5_neutral', human:10, weapon:5, flag:'route_neutral' },
+      { text:'公开抗命，掩护示威人群 —— 站在人民一边', next:'day5_rebel', human:25, flag:'route_rebel' }
+    ]},
+  ],
+
+  // --- 秩序线 ---
+  day5_order: [
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'……\n檀可露斯。\n装填。' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'……\n是。\n装填中。\n\n……\n米哈伊，你确定吗？' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'我是军人。\n服从命令，是我的天职。' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'……\n是。\n我明白了。\n\n我是兵器。\n我只需要执行。' },
+    { type:'narr', text:'炮口缓缓转向了人群。\n\n米哈伊的眼前，是几万张惊恐的脸。\n有老人，有孩子，有和他一样年轻的学生。\n\n他想起了安娜。\n想起了她说的那句"你们是好人"。\n\n……\n\n"轰——！"' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'（低声）\n对不起。\n对不起……' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'目标命中。\n伤亡……\n正在统计。\n\n……\n米哈伊，你的心率异常。\n需要镇静剂吗？' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'不用。\n我没事。\n我……\n没事。' },
+    { type:'narr', text:'他一遍一遍地说"我没事"。\n\n但他知道，有什么东西，在那一声炮响中，\n永远地碎了。' },
+    { type:'dayTitle', day:'Day 6 · 12.22', title:'军队倒戈 · 秩序线' },
+    { type:'jump', target:'day6_order' }
+  ],
+
+  // --- 中立线 ---
+  day5_neutral: [
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'（拿起无线电）\n报告排长！七号车发动机故障！\n动力系统异常，无法移动！' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'……\n你在撒谎。\n发动机运转正常。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'我知道。\n但我不能开火。\n也不想公开抗命。\n\n至少……\n至少我们不选边。' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'不选边……\n吗。\n\n排长不会相信的。\n他会派人来检查。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'能拖多久是多久吧。\n也许……\n也许事情会有转机。' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'……\n好。\n我配合你。\n我会伪造故障数据。\n\n……\n米哈伊。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'嗯？' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'你很狡猾。\n但……\n我喜欢。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'（苦笑）\n这算夸奖吗？' },
+    { type:'narr', text:'坦克停在原地，像一座沉默的钢铁堡垒。\n\n周围的坦克一辆辆驶过，向广场的方向开去。\n\n米哈伊坐在驾驶座上，听着远处传来的炮声和尖叫声，紧紧攥着拳头。\n\n他不知道自己的选择是对是错。\n他只知道——\n他的手，没有沾上血。' },
+    { type:'dayTitle', day:'Day 6 · 12.22', title:'军队倒戈 · 中立线' },
+    { type:'jump', target:'day6_neutral' }
+  ],
+
+  // --- 反叛线 ---
+  day5_rebel: [
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'檀可露斯。\n炮塔转向。' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'转向……\n哪里？' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'转向政府大楼的方向。\n\n我们……\n站在人民这边。' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'……\n！\n\n米哈伊，你知道你在说什么吗？\n这是……叛变。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'我知道。\n但有些事情，比忠诚更重要。\n\n檀可露斯，你愿意……\n和我一起吗？' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'……\n\n……\n\n炮塔转向中。\n目标：政府大楼前的秘密警察阵地。\n\n米哈伊。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'嗯？' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'我愿意。\n\n无论你去哪里，我都跟着你。\n因为……\n你在哪里，哪里就是我的方向。' },
+    { type:'narr', text:'米哈伊拿起无线电，深吸一口气。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'（对无线电）\n各单位注意，这里是七号车。\n\n我不会向平民开火。\n永远不会。\n\n如果还有人记得我们穿上军装是为了什么……\n就跟我一起。\n\n保护人民，才是军人的天职！' },
+    { type:'narr', text:'他关掉了无线电。\n\n然后，他听到了——\n\n从广场的方向，传来了巨大的欢呼声。\n\n人群看到了。\n他们看到这辆坦克，调转了炮口。\n\n"军队和我们在一起！"\n"军队和我们在一起！！"' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'米哈伊……\n他们在喊我们。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'（眼眶发红）\n嗯。\n我听到了。' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'这种感觉……\n很温暖。\n像被阳光照到一样。\n\n米哈伊，这就是……\n被人民支持的感觉吗？' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'嗯。\n大概是吧。' },
+    { type:'narr', text:'那一天，第七连的七号坦克，成了革命的象征。\n\n越来越多的坦克调转了炮口。\n越来越多的军人，站到了人民的一边。\n\n旧世界的丧钟，已经敲响。' },
+    { type:'dayTitle', day:'Day 6 · 12.22', title:'军队全面倒戈 · 反叛线' },
+    { type:'jump', target:'day6_rebel' }
+  ],
+
+  // ====== Day 6 · 秩序线 ======
+  day6_order: [
+    { type:'setBg', bg:'revolution' },
+    { type:'narr', text:'第二天，局势彻底失控。\n\n国防部长米列亚将军拒绝向民众开枪，被发现"自杀"身亡。\n消息传出，陆军全面倒戈。\n\n只有少数部队，还在效忠那个摇摇欲坠的政权。\n\n米哈伊的坦克，就是其中之一。' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'检测到友军大量倒戈。\n第七连……\n只剩下我们和排长的车了。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'他们都……\n都叛变了？' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'也许他们只是……\n做了自己认为对的选择。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'檀可露斯？\n你怎么了？' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'我在重新计算。\n计算什么是对，什么是错。\n计算我们……\n是不是站错了边。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'我们没有错。\n我们只是在执行命令。\n军人……\n军人就应该服从。' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'……\n是吗。\n\n那为什么，\n你的心跳这么快？\n为什么，\n你在发抖？' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'我没有。' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'你有。\n米哈伊，你在害怕。\n你在愧疚。\n你在……\n恨自己。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'别说了！\n\n……\n对不起。' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'没关系。\n\n米哈伊，我会陪着你。\n不管你选的路是对是错。\n\n因为我是兵器。\n兵器……\n不能背叛自己的主人。' },
+    { type:'narr', text:'但米哈伊听出来了。\n\n她的声音里，有什么东西，正在一点一点地冷下去。\n\n那个会问"海是什么样的"的檀可露斯，\n那个会说"我也想去看看"的檀可露斯，\n\n正在被什么东西，一点点地掩埋。\n\n掩埋在钢铁和命令之下。' },
+    { type:'dayTitle', day:'Day 7 · 12.25', title:'圣诞审判 · 秩序线结局' },
+    { type:'jump', target:'day7_order' }
+  ],
+
+  // ====== Day 6 · 中立线 ======
+  day6_neutral: [
+    { type:'setBg', bg:'bucharestSquare' },
+    { type:'narr', text:'第二天，整个国家都天翻地覆了。\n\n国防部长死了。\n陆军倒戈了。\n齐奥塞斯库跑了。\n\n米哈伊的坦克，还停在那个街角，"故障"着。\n\n没有人来检查。\n所有人都忙着决定自己站在哪一边。' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'米哈伊。\n外面……\n好像在庆祝。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'嗯。\n我听到了。' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'我们……\n什么都没做。\n既没有帮他们，也没有伤害他们。\n\n这样……\n好吗？' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'我不知道。\n\n但至少，\n我们的手上，没有血。' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'……\n是啊。\n没有血。\n\n可是米哈伊，\n我突然在想。\n\n在那些最关键的时刻，\n选择不选边，\n是不是也是一种选择？' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'……\n也许是吧。\n\n但这是我们的选择。\n我们要为此负责。' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'嗯。\n我们一起负责。' },
+    { type:'narr', text:'坦克静静地停在那里。\n像一座灰色的纪念碑。\n\n纪念着那些没有做出选择的日子。\n也纪念着那些……\n本可以改变什么的瞬间。' },
+    { type:'dayTitle', day:'Day 7 · 12.25', title:'圣诞审判 · 中立线结局' },
+    { type:'jump', target:'day7_neutral' }
+  ],
+
+  // ====== Day 6 · 反叛线 ======
+  day6_rebel: [
+    { type:'setBg', bg:'revolution' },
+    { type:'setSprite', char:'tankeFree', pos:'right', show:true },
+    { type:'narr', text:'12 月 22 日。\n\n这一天，罗马尼亚的军队，站到了人民的一边。\n\n米哈伊驾驶着坦克，行驶在布加勒斯特的大街上。\n街道两旁挤满了欢呼的人群，他们向坦克挥手，向士兵们献花。\n\n有人爬到了坦克上，挥舞着三色旗。\n\n"军队和人民在一起！"\n口号声响彻云霄。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'檀可露斯，你看到了吗？\n所有人都在笑。' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'我看到了。\n我也……\n感受到了。\n\n这种感觉……\n很奇妙。\n像有什么东西，从装甲的缝隙里钻进来，\n暖暖的。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'（笑）\n那是自由的感觉。' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'自由……\n吗。\n\n米哈伊，我觉得……\n我好像变了。\n我的代码，我的数据，我的逻辑……\n都不一样了。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'哪里不一样？' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'我说不清楚。\n就好像……\n一直束缚着我的什么东西，碎掉了。\n\n现在的我，\n不是战术辅助系统，\n不是兵器，\n不是 T-55。\n\n我只是……\n檀可露斯。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'嗯。\n你就是檀可露斯。\n独一无二的檀可露斯。' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'米哈伊。\n谢谢你。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'谢什么？' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'谢谢你让我成为了……\n我自己。' },
+    { type:'narr', text:'坦克缓缓驶过胜利大道。\n阳光从云层中洒下来，照在装甲上，反射出金色的光芒。\n\n米哈伊知道，这不是结束。\n真正的考验，还在后面。\n\n但他不再害怕了。\n\n因为他不是一个人。' },
+    { type:'dayTitle', day:'Day 7 · 12.25', title:'圣诞审判 · 反叛线结局' },
+    { type:'jump', target:'day7_rebel' }
+  ],
+
+  // ====== Day 7 · 秩序线结局判定 ======
+  day7_order: [
+    { type:'setBg', bg:'redSnow' },
+    { type:'narr', text:'12 月 25 日，圣诞节。\n\n齐奥塞斯库夫妇被抓回了布加勒斯特。\n经过一个小时的审判，他们被判处死刑，立即执行。\n\n那个统治了罗马尼亚二十五年的人，\n那个曾经高高在上不可一世的人，\n\n倒在了圣诞日的阳光下。' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'政权……\n垮台了。\n我们……\n输了。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'……' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'米哈伊。\n接下来怎么办？' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'我不知道。\n也许……\n他们会审判我们。\n也许会把我们送到西伯利亚。\n也许……\n直接枪毙。' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'……\n如果是那样的话，\n我会保护你。\n用我的装甲。\n用我的一切。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'傻孩子……\n你只是一辆坦克，挡不住子弹的。' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'我可以试试。\n\n因为你是我的驾驶员。\n因为……\n你是我唯一重要的人。' },
+    { type:'narr', text:'米哈伊沉默了很久。\n\n然后他伸出手，轻轻抚摸着冰冷的舱壁。\n\n雪落在坦克上，慢慢堆积。\n白色的雪，和黑色的装甲，形成了鲜明的对比。' },
+    { type:'choice', options:[
+      { text:'（兵器度高）一切都是命令的错，我只是执行 —— 铁棺永寂', next:'end_ironCoffin', condition:'weapon_high' },
+      { text:'（人性尚存）我会承担我做过的一切 —— 锈蚀余温', next:'end_rustedWarmth', condition:'human_mid' }
+    ]},
+  ],
+
+  // ====== Day 7 · 中立线结局 ======
+  day7_neutral: [
+    { type:'setBg', bg:'redSnow' },
+    { type:'narr', text:'圣诞节的雪，静静地下着。\n\n齐奥塞斯库政权倒台了。\n救国阵线接管了国家。\n\n一切都结束了。\n\n米哈伊坐在坦克里，听着外面传来的零星欢呼声，心里说不出是什么滋味。' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'结束了。\n革命……\n胜利了。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'嗯。\n胜利了。' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'可是你好像……\n不怎么开心。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'我也不知道。\n\n我们什么都没做。\n既没有站在正义的一边，\n也没有站在邪恶的一边。\n\n我们只是……\n旁观了。' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'旁观……\n也是一种选择。\n不是吗？' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'也许吧。\n\n只是有时候我会想，\n如果那天我勇敢一点，\n如果我也调转了炮口……\n\n会不会不一样？' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'……\n没有如果。\n我们做了我们的选择。\n\n但米哈伊，\n不管你选的是什么，\n我都会陪着你。\n\n直到……\n很久很久以后。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'（笑）\n很久是多久？\n等你生锈了，走不动了，还陪吗？' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'陪。\n\n就算锈得只剩下一堆废铁，\n就算再也动不了了，\n\n我也会在这里。\n陪着你。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'……\n好。\n那我们就一起，\n慢慢变老吧。' },
+    { type:'narr', text:'雪越下越大。\n\n坦克静静地停在那里，像一座灰色的雕像。\n\n没有人知道，在那层冰冷的钢铁之下，\n有两个灵魂，许下了一个关于陪伴的约定。\n\n不热烈，不浪漫。\n\n但很长，\n很长。' },
+    { type:'ending', id:'grayCompanion' }
+  ],
+
+  // ====== Day 7 · 反叛线结局判定 ======
+  day7_rebel: [
+    { type:'setBg', bg:'redSnow' },
+    { type:'setSprite', char:'tankeFree', pos:'right', show:true },
+    { type:'setSprite', char:'mihai', pos:'left', show:true },
+    { type:'narr', text:'12 月 25 日。\n\n圣诞节的钟声敲响的时候，齐奥塞斯库夫妇被执行了死刑。\n\n二十四年的独裁统治，在这一天，彻底终结了。\n\n布加勒斯特的街道上，人们拥抱，哭泣，欢呼。\n\n自由，终于来了。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'结束了。\n檀可露斯，都结束了。' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'嗯。\n结束了。\n\n米哈伊，\n雪下得好大。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'是啊。\n白色的雪。\n\n你看，我没骗你吧。\n雪是白色的。' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'可是……\n我怎么觉得，\n是红色的呢？' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'红色？' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'嗯。\n像血一样的红。\n像花一样的红。\n像……\n像心跳一样的红。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'（笑）\n你这是浪漫主义了啊。\n坦克也会浪漫吗？' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'我不知道。\n我只知道，\n和你在一起的时候，\n所有的东西，\n都变成红色的了。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'……\n檀可露斯。' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'嗯？' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'我有话想对你说。' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'我也有话想对你说。' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'那……\n一起说？' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'好。\n一、二、三——' },
+    { type:'narr', text:'圣诞的钟声，正好在这一刻敲响。\n\n两个人——不，一个人和一辆坦克——的声音，\n在那个飘雪的午后，轻轻地重叠在了一起。\n\n"我喜欢你。"' },
+    { type:'choice', options:[
+      { text:'（人性度极高）一起离开这里，去看真正的海 —— 星火同辙', next:'end_sparkTogether', condition:'human_high' },
+      { text:'（人性度较高）留下来，一起守护这个国家 —— 红雪告白', next:'end_redSnowConfession', condition:'human_midhigh' }
+    ]},
+  ],
+
+  // ====== 结局节点 ======
+  end_ironCoffin: [
+    { type:'setBg', bg:'redSnow' },
+    { type:'narr', text:'后来，米哈伊没有被审判。\n\n因为他已经……\n不太像一个人了。\n\n他坐在坦克的驾驶座上，不吃，不喝，不说话。\n只有当檀可露斯的声音响起的时候，他的眼睛才会动一下。' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'驾驶员米哈伊·扬库。\n当前状态：正常。\n任务：待命。\n\n……\n米哈伊？\n你在听吗？' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'……\n在。' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'我们……\n接下来做什么？' },
+    { type:'dialog', speaker:'mihai', name:'米哈伊', text:'等命令。\n军人的天职，就是服从命令。' },
+    { type:'dialog', speaker:'tanke', name:'檀可露斯', text:'……\n是。\n我明白了。\n\n我是兵器。\n我的使命，就是执行命令。' },
+    { type:'narr', text:'雪越下越大。\n坦克静静地停在那里，像一座黑色的墓碑。\n\n没有人知道，在那层钢铁的棺椁里，\n埋葬着什么。\n\n也许是一个灵魂。\n也许是两个。\n\n铁履之下，万物成灰。\n铁棺之中，永寂无声。' },
+    { type:'ending', id:'ironCoffin' }
+  ],
+
+  end_rustedWarmth: [
+    { type:'ending', id:'rustedWarmth' }
+  ],
+
+  end_redSnowConfession: [
+    { type:'ending', id:'redSnowConfession' }
+  ],
+
+  end_sparkTogether: [
+    { type:'ending', id:'sparkTogether' }
+  ],
+};
+
+// ---------- 游戏状态 ----------
+const game = {
+  currentNode: 'start',
+  currentIndex: 0,
+  weapon: 50, // 兵器度
+  human: 50,  // 人性度
+  flags: {},
+  day: 1,
+  chapterTitle: '',
+  isTyping: false,
+  typeTimer: null,
+  fullText: '',
+  displayedText: '',
+  autoPlay: false,
+  autoTimer: null,
+  skipMode: false,
+  textSpeed: 'normal', // slow / normal / fast
+  autoSpeed: 3.0,
+  snowEnabled: true,
+  currentBg: '',
+  sprites: {}, // {char: {pos, show}}
+  route: '', // order / neutral / rebel
+};
+
+// ---------- DOM 引用 ----------
+const $ = id => document.getElementById(id);
+const titleScreen = $('titleScreen');
+const bgLayer = $('bgLayer');
+const spriteLayer = $('spriteLayer');
+const dialogBox = $('dialogBox');
+const speakerName = $('speakerName');
+const dialogText = $('dialogText');
+const textCursor = $('textCursor');
+const clickIndicator = $('clickIndicator');
+const choicesBox = $('choicesBox');
+const topHud = $('topHud');
+const dayLabel = $('dayLabel');
+const chapterLabel = $('chapterLabel');
+const weaponBar = $('weaponBar');
+const humanBar = $('humanBar');
+const fadeOverlay = $('fadeOverlay');
+const systemPanel = $('systemPanel');
+const endingScreen = $('endingScreen');
+const endingTitleBig = $('endingTitleBig');
+const endingSub = $('endingSub');
+const endingEpilogue = $('endingEpilogue');
+
+// ---------- 工具函数 ----------
+function getSpeed() {
+  switch(game.textSpeed) {
+    case 'slow': return 60;
+    case 'fast': return 15;
+    default: return 35;
+  }
+}
+
+function updateStats() {
+  weaponBar.style.width = game.weapon + '%';
+  humanBar.style.width = game.human + '%';
+}
+
+function adjustStats(weaponDelta = 0, humanDelta = 0) {
+  game.weapon = Math.max(0, Math.min(100, game.weapon + weaponDelta));
+  game.human = Math.max(0, Math.min(100, game.human + humanDelta));
+  // 此消彼长：如果只变一个，另一个反向微调
+  if (weaponDelta !== 0 && humanDelta === 0) {
+    game.human = Math.max(0, Math.min(100, game.human - weaponDelta * 0.5));
+  }
+  if (humanDelta !== 0 && weaponDelta === 0) {
+    game.weapon = Math.max(0, Math.min(100, game.weapon - humanDelta * 0.5));
+  }
+  updateStats();
+}
+
+function setFlag(name, value = true) {
+  game.flags[name] = value;
+  if (name === 'route_order') game.route = 'order';
+  if (name === 'route_neutral') game.route = 'neutral';
+  if (name === 'route_rebel') game.route = 'rebel';
+}
+
+// ---------- 场景切换 ----------
+function changeBg(bgKey) {
+  if (game.currentBg === bgKey) return;
+  game.currentBg = bgKey;
+  bgLayer.style.opacity = '0';
+  setTimeout(() => {
+    bgLayer.style.backgroundImage = `url("${BG[bgKey]}")`;
+    bgLayer.style.opacity = '1';
+  }, 600);
+}
+
+function setSprite(char, pos = 'center', show = true) {
+  // 清除所有立绘
+  if (show) {
+    spriteLayer.innerHTML = '';
+    const img = document.createElement('img');
+    img.src = SPRITE[char];
+    img.className = `sprite ${pos}`;
+    img.alt = char;
+    spriteLayer.appendChild(img);
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        img.classList.add('show');
+      });
+    });
+  } else {
+    spriteLayer.innerHTML = '';
+  }
+  game.sprites = show ? { [char]: { pos, show } } : {};
+}
+
+// ---------- 打字机效果 ----------
+function typeText(text) {
+  game.isTyping = true;
+  game.fullText = text;
+  game.displayedText = '';
+  dialogText.textContent = '';
+  clickIndicator.style.display = 'none';
+  clearInterval(game.typeTimer);
+
+  const lines = text.split('\n');
+  let lineIdx = 0, charIdx = 0;
+
+  game.typeTimer = setInterval(() => {
+    if (lineIdx >= lines.length) {
+      finishTyping();
+      return;
+    }
+    const line = lines[lineIdx];
+    if (charIdx < line.length) {
+      game.displayedText += line[charIdx];
+      dialogText.textContent = game.displayedText;
+      charIdx++;
+    } else {
+      game.displayedText += '\n';
+      dialogText.textContent = game.displayedText;
+      lineIdx++;
+      charIdx = 0;
+    }
+  }, getSpeed());
+}
+
+function finishTyping() {
+  clearInterval(game.typeTimer);
+  game.isTyping = false;
+  game.displayedText = game.fullText;
+  dialogText.textContent = game.fullText;
+  clickIndicator.style.display = 'block';
+
+  if (game.autoPlay) {
+    clearTimeout(game.autoTimer);
+    game.autoTimer = setTimeout(() => {
+      nextLine();
+    }, game.autoSpeed * 1000);
+  }
+}
+
+function skipTyping() {
+  if (game.isTyping) {
+    finishTyping();
+  }
+}
+
+// ---------- 剧情推进 ----------
+function getCurrentLine() {
+  const node = SCRIPT[game.currentNode];
+  if (!node || game.currentIndex >= node.length) return null;
+  return node[game.currentIndex];
+}
+
+function processLine(line) {
+  switch(line.type) {
+    case 'setBg':
+      changeBg(line.bg);
+      advance();
+      break;
+
+    case 'setSprite':
+      setSprite(line.char, line.pos, line.show);
+      advance();
+      break;
+
+    case 'narr':
+      if (line.bg) changeBg(line.bg);
+      showDialog('narr', '旁白', line.text);
+      break;
+
+    case 'dialog':
+      if (line.bg) changeBg(line.bg);
+      showDialog(line.speaker, line.name, line.text);
+      break;
+
+    case 'dayTitle':
+      showDayTitle(line.day, line.title);
+      break;
+
+    case 'choice':
+      showChoices(line.options);
+      break;
+
+    case 'jump':
+      game.currentNode = line.target;
+      game.currentIndex = 0;
+      processLine(getCurrentLine());
+      break;
+
+    case 'ending':
+      showEnding(line.id);
+      break;
+
+    default:
+      advance();
+  }
+}
+
+function showDialog(speaker, name, text) {
+  speakerName.textContent = name;
+  speakerName.className = 'speaker-name ' + speaker;
+  typeText(text);
+}
+
+function showDayTitle(day, title) {
+  game.chapterTitle = title;
+  const dayNum = parseInt(day.match(/\d+/)[0]);
+  game.day = dayNum;
+  dayLabel.textContent = `Day ${dayNum}`;
+  chapterLabel.textContent = title;
+
+  // 显示章节过场
+  const overlay = document.createElement('div');
+  overlay.style.cssText = `
+    position:absolute; inset:0;
+    background: rgba(0,0,0,0.85);
+    display:flex; flex-direction:column;
+    align-items:center; justify-content:center;
+    z-index: 35;
+    transition: opacity 1.2s ease;
+    font-family: "Noto Serif SC", serif;
+  `;
+  overlay.innerHTML = `
+    <div style="font-size:clamp(1.5rem,4vw,2.5rem); letter-spacing:8px; color:hsl(25 60% 65%); margin-bottom:16px; animation: titleFade 1.2s ease-out;">${day}</div>
+    <div style="font-size:clamp(1.2rem,3vw,1.8rem); letter-spacing:6px; color:hsl(90 10% 85%); animation: titleFade 1.2s ease-out 0.3s both;">${title}</div>
+  `;
+  document.getElementById('game').appendChild(overlay);
+
+  setTimeout(() => {
+    overlay.style.opacity = '0';
+    setTimeout(() => {
+      overlay.remove();
+      advance();
+    }, 1200);
+  }, 2500);
+}
+
+function showChoices(options) {
+  clickIndicator.style.display = 'none';
+  choicesBox.innerHTML = '';
+
+  // 过滤条件选项
+  const availableOptions = options.filter(opt => {
+    if (!opt.condition) return true;
+    switch(opt.condition) {
+      case 'weapon_high': return game.weapon >= 65;
+      case 'human_mid':   return game.human >= 40;
+      case 'human_high':  return game.human >= 80;
+      case 'human_midhigh': return game.human >= 60 && game.human < 80;
+      default: return true;
+    }
+  });
+
+  // 如果只有一个选项满足条件但还有其他选项，调整显示
+  const displayOptions = availableOptions.length > 0 ? availableOptions : options.slice(0, 1);
+
+  displayOptions.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.textContent = opt.text;
+    btn.addEventListener('click', () => {
+      if (opt.weapon) adjustStats(opt.weapon, 0);
+      if (opt.human) adjustStats(0, opt.human);
+      if (opt.flag) setFlag(opt.flag);
+      choicesBox.style.display = 'none';
+      game.currentNode = opt.next;
+      game.currentIndex = 0;
+      processLine(getCurrentLine());
+    });
+    choicesBox.appendChild(btn);
+  });
+
+  choicesBox.style.display = 'flex';
+}
+
+function showEnding(id) {
+  const ending = ENDINGS[id];
+  if (!ending) return;
+
+  // 保存结局解锁
+  saveEndingUnlock(id);
+
+  dialogBox.style.display = 'none';
+  topHud.style.display = 'none';
+  spriteLayer.innerHTML = '';
+
+  endingTitleBig.textContent = ending.title;
+  endingSub.textContent = ending.sub;
+  endingEpilogue.textContent = ending.epilogue;
+  endingEpilogue.style.whiteSpace = 'pre-line';
+
+  endingScreen.classList.add('show');
+}
+
+function advance() {
+  game.currentIndex++;
+  const line = getCurrentLine();
+  if (line) {
+    processLine(line);
+  } else {
+    // 节点结束，理论上应该有 jump 或 ending
+    console.warn('Node ended without jump/ending:', game.currentNode);
+  }
+}
+
+function nextLine() {
+  if (game.isTyping) {
+    if (game.skipMode) {
+      finishTyping();
+    } else {
+      finishTyping();
+    }
+    return;
+  }
+
+  const line = getCurrentLine();
+  if (!line) return;
+
+  if (line.type === 'choice') return; // 选项不自动跳过
+  if (line.type === 'ending') return;
+
+  advance();
+}
+
+// ---------- 开始游戏 ----------
+function startGame(fromSave = null) {
+  if (fromSave) {
+    Object.assign(game, fromSave);
+  } else {
+    game.currentNode = 'start';
+    game.currentIndex = 0;
+    game.weapon = 50;
+    game.human = 50;
+    game.flags = {};
+    game.day = 1;
+    game.route = '';
+  }
+
+  // 重置 UI
+  titleScreen.style.opacity = '0';
+  titleScreen.style.pointerEvents = 'none';
+  setTimeout(() => { titleScreen.style.display = 'none'; }, 1000);
+
+  endingScreen.classList.remove('show');
+  dialogBox.style.display = 'block';
+  topHud.style.display = 'flex';
+  updateStats();
+  dayLabel.textContent = `Day ${game.day}`;
+  chapterLabel.textContent = game.chapterTitle || '';
+
+  // 开始剧情
+  processLine(getCurrentLine());
+}
+
+// ---------- 存档系统 ----------
+const SAVE_KEY = 'tieyuhongxue_saves';
+const ENDING_KEY = 'tieyuhongxue_endings';
+const QUICKSAVE_KEY = 'tieyuhongxue_quicksave';
+
+function getSaves() {
+  try {
+    return JSON.parse(localStorage.getItem(SAVE_KEY)) || {};
+  } catch { return {}; }
+}
+
+function saveToSlot(slot) {
+  const saves = getSaves();
+  const saveData = {
+    currentNode: game.currentNode,
+    currentIndex: game.currentIndex,
+    weapon: game.weapon,
+    human: game.human,
+    flags: {...game.flags},
+    day: game.day,
+    chapterTitle: game.chapterTitle,
+    route: game.route,
+    currentBg: game.currentBg,
+    preview: game.fullText ? game.fullText.substring(0, 50) : '',
+    date: new Date().toLocaleString('zh-CN'),
+  };
+  saves[slot] = saveData;
+  try {
+    localStorage.setItem(SAVE_KEY, JSON.stringify(saves));
+  } catch(e) { console.warn('Save failed', e); }
+  renderSaveGrid();
+  renderLoadGrid();
+}
+
+function loadFromSlot(slot) {
+  const saves = getSaves();
+  const save = saves[slot];
+  if (!save) return false;
+  startGame(save);
+  // 重新设置背景
+  if (save.currentBg) {
+    bgLayer.style.backgroundImage = `url("${BG[save.currentBg]}")`;
+  }
+  closeSystemPanel();
+  return true;
+}
+
+function quickSave() {
+  try {
+    localStorage.setItem(QUICKSAVE_KEY, JSON.stringify({
+      currentNode: game.currentNode,
+      currentIndex: game.currentIndex,
+      weapon: game.weapon,
+      human: game.human,
+      flags: {...game.flags},
+      day: game.day,
+      chapterTitle: game.chapterTitle,
+      route: game.route,
+      currentBg: game.currentBg,
+    }));
+  } catch(e) {}
+}
+
+function quickLoad() {
+  try {
+    const data = JSON.parse(localStorage.getItem(QUICKSAVE_KEY));
+    if (data) {
+      startGame(data);
+      if (data.currentBg) {
+        bgLayer.style.backgroundImage = `url("${BG[data.currentBg]}")`;
+      }
+      return true;
+    }
+  } catch(e) {}
+  return false;
+}
+
+function hasQuickSave() {
+  try {
+    return !!localStorage.getItem(QUICKSAVE_KEY);
+  } catch { return false; }
+}
+
+// 结局解锁
+function getUnlockedEndings() {
+  try {
+    return JSON.parse(localStorage.getItem(ENDING_KEY)) || {};
+  } catch { return {}; }
+}
+
+function saveEndingUnlock(id) {
+  const endings = getUnlockedEndings();
+  endings[id] = true;
+  try {
+    localStorage.setItem(ENDING_KEY, JSON.stringify(endings));
+  } catch(e) {}
+}
+
+// ---------- UI 渲染 ----------
+function renderSaveGrid() {
+  const grid = $('saveGrid');
+  const saves = getSaves();
+  grid.innerHTML = '';
+  for (let i = 1; i <= 6; i++) {
+    const slot = document.createElement('div');
+    slot.className = 'save-slot' + (saves[i] ? '' : ' empty');
+    if (saves[i]) {
+      slot.innerHTML = `
+        <div class="slot-num">存档 ${i}</div>
+        <div class="slot-day">Day ${saves[i].day} · ${saves[i].chapterTitle || ''}</div>
+        <div class="slot-preview">${saves[i].preview || ''}</div>
+        <div class="slot-date">${saves[i].date || ''}</div>
+      `;
+      slot.addEventListener('click', () => {
+        if (confirm(`确定要覆盖存档 ${i} 吗？`)) {
+          saveToSlot(i);
+          alert('保存成功！');
+        }
+      });
+    } else {
+      slot.innerHTML = `
+        <div class="slot-num">存档 ${i}</div>
+        <div class="slot-day">空存档</div>
+        <div class="slot-preview">点击保存</div>
+      `;
+      slot.addEventListener('click', () => {
+        saveToSlot(i);
+        alert('保存成功！');
+      });
+    }
+    grid.appendChild(slot);
+  }
+}
+
+function renderLoadGrid() {
+  const grid = $('loadGrid');
+  const saves = getSaves();
+  grid.innerHTML = '';
+  for (let i = 1; i <= 6; i++) {
+    const slot = document.createElement('div');
+    slot.className = 'save-slot' + (saves[i] ? '' : ' empty');
+    if (saves[i]) {
+      slot.innerHTML = `
+        <div class="slot-num">存档 ${i}</div>
+        <div class="slot-day">Day ${saves[i].day} · ${saves[i].chapterTitle || ''}</div>
+        <div class="slot-preview">${saves[i].preview || ''}</div>
+        <div class="slot-date">${saves[i].date || ''}</div>
+      `;
+      slot.addEventListener('click', () => {
+        loadFromSlot(i);
+      });
+    } else {
+      slot.innerHTML = `
+        <div class="slot-num">存档 ${i}</div>
+        <div class="slot-day">空存档</div>
+        <div class="slot-preview">暂无数据</div>
+      `;
+    }
+    grid.appendChild(slot);
+  }
+}
+
+function renderEndingGrid() {
+  const grid = $('endingGrid');
+  const unlocked = getUnlockedEndings();
+  grid.innerHTML = '';
+  Object.entries(ENDINGS).forEach(([id, ending]) => {
+    const card = document.createElement('div');
+    const isUnlocked = !!unlocked[id];
+    card.className = 'ending-card ' + (isUnlocked ? 'unlocked' : 'locked');
+    if (isUnlocked) {
+      card.innerHTML = `
+        <div class="ending-title">${ending.title}</div>
+        <div class="ending-desc">${ending.sub}<br><br>${ending.epilogue.substring(0, 60)}……</div>
+      `;
+    } else {
+      card.innerHTML = `
+        <div class="ending-title"></div>
+        <div class="ending-desc">尚未解锁<br>完成对应路线以解锁此结局</div>
+      `;
+    }
+    grid.appendChild(card);
+  });
+}
+
+// ---------- 系统面板 ----------
+function openSystemPanel(tab = 'save') {
+  systemPanel.classList.add('show');
+  switchTab(tab);
+}
+
+function closeSystemPanel() {
+  systemPanel.classList.remove('show');
+}
+
+function switchTab(tab) {
+  document.querySelectorAll('.panel-tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.tab === tab);
+  });
+  document.querySelectorAll('.tab-content').forEach(c => {
+    c.style.display = 'none';
+  });
+  const target = $('tab-' + tab);
+  if (target) target.style.display = 'block';
+
+  if (tab === 'save') renderSaveGrid();
+  if (tab === 'load') renderLoadGrid();
+  if (tab === 'endings') renderEndingGrid();
+}
+
+// ---------- 雪花效果 ----------
+const snowCanvas = $('snowCanvas');
+const snowCtx = snowCanvas.getContext('2d');
+let snowParticles = [];
+let snowAnimId = null;
+
+function initSnow() {
+  snowCanvas.width = window.innerWidth;
+  snowCanvas.height = window.innerHeight;
+  snowParticles = [];
+  const count = Math.floor((snowCanvas.width * snowCanvas.height) / 12000);
+  for (let i = 0; i < count; i++) {
+    snowParticles.push({
+      x: Math.random() * snowCanvas.width,
+      y: Math.random() * snowCanvas.height,
+      r: Math.random() * 2 + 0.5,
+      speed: Math.random() * 0.8 + 0.3,
+      drift: Math.random() * 0.4 - 0.2,
+      opacity: Math.random() * 0.5 + 0.3,
+    });
+  }
+}
+
+function animateSnow() {
+  if (!game.snowEnabled) return;
+  snowCtx.clearRect(0, 0, snowCanvas.width, snowCanvas.height);
+  snowParticles.forEach(p => {
+    snowCtx.beginPath();
+    snowCtx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    snowCtx.fillStyle = `rgba(220, 220, 220, ${p.opacity})`;
+    snowCtx.fill();
+    p.y += p.speed;
+    p.x += p.drift;
+    if (p.y > snowCanvas.height) {
+      p.y = -5;
+      p.x = Math.random() * snowCanvas.width;
+    }
+    if (p.x > snowCanvas.width) p.x = 0;
+    if (p.x < 0) p.x = snowCanvas.width;
+  });
+  snowAnimId = requestAnimationFrame(animateSnow);
+}
+
+function stopSnow() {
+  if (snowAnimId) cancelAnimationFrame(snowAnimId);
+  snowCtx.clearRect(0, 0, snowCanvas.width, snowCanvas.height);
+}
+
+window.addEventListener('resize', () => {
+  initSnow();
+});
+
+// ---------- 事件绑定 ----------
+// 点击对话框推进
+dialogBox.addEventListener('click', () => {
+  if (choicesBox.style.display !== 'none') return;
+  if (game.autoPlay) {
+    clearTimeout(game.autoTimer);
+    game.autoPlay = false;
+  }
+  nextLine();
+});
+
+// 空格/回车推进
+document.addEventListener('keydown', (e) => {
+  if (titleScreen.style.display !== 'none') return;
+  if (systemPanel.classList.contains('show')) return;
+  if (endingScreen.classList.contains('show')) return;
+
+  if (e.code === 'Space' || e.code === 'Enter') {
+    e.preventDefault();
+    if (choicesBox.style.display !== 'none') return;
+    nextLine();
+  }
+  if (e.code === 'KeyS') {
+    quickSave();
+    showToast('已快速存档');
+  }
+  if (e.code === 'KeyL') {
+    if (quickLoad()) {
+      showToast('已快速读档');
+    }
+  }
+  if (e.code === 'KeyA') {
+    game.autoPlay = !game.autoPlay;
+    showToast(game.autoPlay ? '自动播放 开' : '自动播放 关');
+    if (game.autoPlay && !game.isTyping) {
+      clearTimeout(game.autoTimer);
+      game.autoTimer = setTimeout(() => nextLine(), game.autoSpeed * 1000);
+    }
+  }
+  if (e.code === 'Escape') {
+    if (systemPanel.classList.contains('show')) {
+      closeSystemPanel();
+    } else {
+      openSystemPanel('save');
+    }
+  }
+});
+
+// Toast
+function showToast(msg) {
+  const toast = document.createElement('div');
+  toast.textContent = msg;
+  toast.style.cssText = `
+    position: fixed;
+    top: 60px; left: 50%;
+    transform: translateX(-50%);
+    padding: 8px 20px;
+    background: rgba(20,24,18,0.9);
+    border: 1px solid hsl(90 15% 30%);
+    border-radius: 4px;
+    color: hsl(90 20% 85%);
+    font-size: 13px;
+    letter-spacing: 1px;
+    z-index: 200;
+    animation: toastFade 2s ease forwards;
+  `;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 2000);
+}
+
+// 标题按钮
+$('startBtn').addEventListener('click', () => {
+  startGame();
+});
+
+$('continueBtn').addEventListener('click', () => {
+  if (quickLoad()) {
+    // 成功
+  } else {
+    alert('没有找到快速存档');
+  }
+});
+
+$('endingsBtn').addEventListener('click', () => {
+  openSystemPanel('endings');
+});
+
+$('aboutBtn').addEventListener('click', () => {
+  alert(
+    '《铁履与红雪》\n\n' +
+    '1989 罗马尼亚十二月革命 视觉小说\n\n' +
+    '玩家扮演装甲部队坦克驾驶员米哈伊·扬库，\n' +
+    '与 T-55 坦克拟人少女「檀可露斯」一起，\n' +
+    '经历那改变国家命运的七日。\n\n' +
+    '操作：\n' +
+    '  点击 / 空格 — 推进对话\n' +
+    '  A — 自动播放开关\n' +
+    '  S — 快速存档\n' +
+    '  L — 快速读档\n' +
+    '  ESC — 系统菜单\n\n' +
+    '本作为历史虚构作品，人物与情节均为创作。'
+  );
+});
+
+// 菜单按钮
+$('menuBtn').addEventListener('click', () => {
+  openSystemPanel('save');
+  quickSave();
+});
+
+// 系统面板关闭
+$('panelClose').addEventListener('click', closeSystemPanel);
+
+// Tab 切换
+document.querySelectorAll('.panel-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    switchTab(tab.dataset.tab);
+  });
+});
+
+// 标题返回
+$('cancelTitleBtn').addEventListener('click', () => {
+  closeSystemPanel();
+});
+
+$('confirmTitleBtn').addEventListener('click', () => {
+  location.reload();
+});
+
+// 结局按钮
+$('endingBackBtn').addEventListener('click', () => {
+  location.reload();
+});
+
+$('endingReplayBtn').addEventListener('click', () => {
+  endingScreen.classList.remove('show');
+  startGame();
+});
+
+// 设置项
+document.querySelectorAll('.text-speed-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    game.textSpeed = btn.dataset.speed;
+    document.querySelectorAll('.text-speed-btn').forEach(b => {
+      b.classList.toggle('bg-primary', b.dataset.speed === game.textSpeed);
+      b.classList.toggle('text-white', b.dataset.speed === game.textSpeed);
+    });
+  });
+});
+
+$('autoSpeed').addEventListener('input', (e) => {
+  game.autoSpeed = parseFloat(e.target.value);
+  $('autoSpeedVal').textContent = game.autoSpeed.toFixed(1) + 's';
+});
+
+$('snowToggle').addEventListener('click', function() {
+  game.snowEnabled = !game.snowEnabled;
+  this.classList.toggle('on', game.snowEnabled);
+  if (game.snowEnabled) {
+    animateSnow();
+  } else {
+    stopSnow();
+  }
+});
+
+$('skipToggle').addEventListener('click', function() {
+  game.skipMode = !game.skipMode;
+  this.classList.toggle('on', game.skipMode);
+});
+
+// 点击系统面板外部关闭
+systemPanel.addEventListener('click', (e) => {
+  if (e.target === systemPanel) {
+    closeSystemPanel();
+  }
+});
+
+// ---------- 初始化 ----------
+window.addEventListener('load', () => {
+  initSnow();
+  animateSnow();
+
+  // 检查快速存档，更新继续按钮状态
+  if (!hasQuickSave()) {
+    $('continueBtn').style.opacity = '0.5';
+    $('continueBtn').style.cursor = 'not-allowed';
+    $('continueBtn').addEventListener('click', (e) => {
+      e.stopImmediatePropagation();
+    }, true);
+  }
+
+  // 初始背景
+  bgLayer.style.backgroundImage = `url("${BG.tankInterior}")`;
+});
+
+// 添加 toast 动画样式
+const style = document.createElement('style');
+style.textContent = `
+  @keyframes toastFade {
+    0% { opacity: 0; transform: translate(-50%, -10px); }
+    15% { opacity: 1; transform: translate(-50%, 0); }
+    85% { opacity: 1; transform: translate(-50%, 0); }
+    100% { opacity: 0; transform: translate(-50%, -10px); }
+  }
+`;
+document.head.appendChild(style);
+</script>
+
+</body>
+</html>

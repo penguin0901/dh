@@ -5,45 +5,107 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>企鹅导航页</title>
     <meta name="description" content="企鹅导航页">
-    <link rel="stylesheet icon" herf="penguin.ico">
+    <link rel="icon" href="penguin.ico">
     <style>
+        /* CSS变量：浅色为默认 */
+        :root {
+            --bg-body: #f5f7fa;
+            --bg-container: #ffffff;
+            --bg-card: #f8f9fb;
+            --bg-sidebar: #f8f9fa;
+            --bg-input: #ffffff;
+            --bg-button: #254b9c;
+            --bg-button-hover: #3663c2;
+            --text-main: #222831;
+            --text-secondary: #555964;
+            --text-placeholder: #888c96;
+            --border-color: #e2e5ec;
+            --border-sidebar: #dee2e8;
+            --accent-blue: #4785ff;
+            --icon-bg: #e8edf7;
+            --shadow-normal: 0 1px 3px rgba(0,0,0,0.1);
+            --shadow-card: 0 6px 16px rgba(0,0,0,0.12);
+        }
+
+        /* 深色主题类 */
+        html.dark {
+            --bg-body: #0f172a;
+            --bg-container: #1e293b;
+            --bg-card: #273449;
+            --bg-sidebar: #162544;
+            --bg-input: #334155;
+            --bg-button: #254b9c;
+            --bg-button-hover: #3663c2;
+            --text-main: #e2e8f0;
+            --text-secondary: #94a3b8;
+            --text-placeholder: #94a3b8;
+            --border-color: #334155;
+            --border-sidebar: #2c3e63;
+            --accent-blue: #4785ff;
+            --icon-bg: #162544;
+            --shadow-normal: 0 4px 12px rgba(0,0,0,0.3);
+            --shadow-card: 0 6px 16px rgba(0,0,0,0.25);
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: Lo, sans-serif;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
         }
         
         body {
-            background-color: #f5f5f5;
-            color: #333;
+            background-color: var(--bg-body);
+            color: var(--text-main);
             line-height: 1.6;
-            padding: 20px;
+            padding: 24px 16px;
+            min-height: 100vh;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
         
         .container {
-            max-width: 1000px;
+            max-width: 1040px;
             margin: 0 auto;
-            background-color: white;
-            padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            transition: margin-left 0.3s ease;
+            background-color: var(--bg-container);
+            padding: 32px;
+            border-radius: 16px;
+            box-shadow: var(--shadow-normal);
+            transition: margin-left 0.3s ease, background-color 0.3s ease;
+        }
+
+        /* 主题切换按钮 右上角 */
+        .theme-toggle {
+            position: fixed;
+            top:14px;
+            right:14px;
+            z-index:1002;
+            padding: 8px 12px;
+            border-radius:10px;
+            border:1px solid var(--border-color);
+            background: var(--bg-card);
+            color: var(--text-main);
+            cursor:pointer;
+            font-size:18px;
+            box-shadow: var(--shadow-normal);
+            transition: all 0.25s;
+        }
+        .theme-toggle:hover{
+            background-color: var(--bg-input);
         }
         
         /* 侧边栏样式 */
         .sidebar {
             position: fixed;
-            left: -250px;
+            left: -260px;
             top: 0;
-            width: 250px;
+            width: 260px;
             height: 100%;
-            background-color: #f8f9fa;
-            transition: left 0.3s ease;
+            background-color: var(--bg-sidebar);
+            transition: left 0.3s ease, background-color 0.3s ease;
             z-index: 1000;
-            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+            box-shadow: var(--shadow-normal);
             overflow-y: auto;
-            border-right: 1px solid #e0e0e0;
+            border-right: 1px solid var(--border-sidebar);
         }
         
         .sidebar.active {
@@ -52,122 +114,138 @@
         
         .sidebar-toggle {
             position: fixed;
-            left: 10px;
-            top: 10px;
-            background: #f8f9fa;
-            color: #333;
-            border: 1px solid #e0e0e0;
-            border-radius: 4px;
-            padding: 10px;
+            left: 14px;
+            top: 14px;
+            background: var(--bg-sidebar);
+            color: var(--text-main);
+            border: 1px solid var(--border-sidebar);
+            border-radius: 10px;
+            padding: 10px 14px;
             cursor: pointer;
             z-index: 1001;
-            font-size: 18px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            font-size: 20px;
+            box-shadow: var(--shadow-normal);
+            transition: background 0.25s;
         }
         
         .sidebar-toggle:hover {
-            background: #e9ecef;
+            background: var(--bg-card);
         }
         
         .sidebar-header {
-            padding: 20px;
+            padding: 24px 20px;
             text-align: center;
-            border-bottom: 1px solid #e0e0e0;
-            margin-top: 40px;
+            border-bottom: 1px solid var(--border-sidebar);
+            margin-top: 48px;
         }
         
         .sidebar-title {
-            color: #333;
-            font-size: 1.2rem;
-            margin-bottom: 5px;
+            color: var(--text-main);
+            font-size: 1.25rem;
+            margin-bottom: 6px;
         }
         
         .sidebar-links {
-            padding: 15px 0;
+            padding: 16px 0;
         }
         
         .sidebar-link {
             display: block;
-            padding: 12px 20px;
-            color: #333;
+            padding: 13px 24px;
+            color: var(--text-main);
             text-decoration: none;
-            transition: background 0.2s;
+            transition: all 0.22s ease;
             border-left: 3px solid transparent;
         }
         
         .sidebar-link:hover {
-            background-color: #e9ecef;
-            border-left: 3px solid #4a6cf7;
+            background-color: var(--bg-card);
+            border-left: 3px solid var(--accent-blue);
         }
         
         .sidebar-section {
-            margin-bottom: 20px;
+            margin-bottom: 24px;
         }
         
         .sidebar-section-title {
-            padding: 10px 20px;
-            font-size: 0.9rem;
-            color: #666;
+            padding: 12px 24px;
+            font-size: 0.82rem;
+            color: var(--text-secondary);
             text-transform: uppercase;
             letter-spacing: 1px;
-            font-weight: bold;
+            font-weight: 600;
         }
         
         header {
             text-align: center;
-            margin-bottom: 30px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid #eee;
+            margin-bottom: 36px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
         }
         
         h1 {
             font-size: 1.8rem;
-            color: #333;
-            margin-bottom: 5px;
+            color: var(--text-main);
+            margin-bottom: 6px;
+        }
+
+        header p {
+            color: var(--text-secondary);
         }
         
         .search-container {
             display: flex;
-            margin-bottom: 30px;
+            margin-bottom: 36px;
         }
         
         .search-container input {
             flex: 1;
-            padding: 12px 15px;
-            border: 1px solid #ddd;
-            border-radius: 4px 0 0 4px;
+            padding: 14px 18px;
+            background-color: var(--bg-input);
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            border-radius: 12px 0 0 12px;
             font-size: 1rem;
             outline: none;
+            transition: border 0.25s, background 0.3s;
+        }
+        .search-container input::placeholder {
+            color:var(--text-placeholder);
+        }
+        .search-container input:focus {
+            border-color:var(--accent-blue);
         }
         
         .search-container button {
-            background: #4a6cf7;
+            background: var(--bg-button);
             color: white;
             border: none;
-            padding: 0 20px;
-            border-radius: 0 4px 4px 0;
+            padding: 0 26px;
+            border-radius: 0 12px 12px 0;
             cursor: pointer;
             font-size: 1rem;
+            transition: background 0.2s;
         }
         
         .search-container button:hover {
-            background: #3a5ce5;
+            background: var(--bg-button-hover);
         }
         
         .sites-section {
-            margin-bottom: 30px;
+            margin-bottom: 36px;
         }
         
         .section-title {
-            font-size: 1.2rem;
-            margin-bottom: 15px;
-            color: #555;
+            font-size: 1.25rem;
+            margin-bottom: 18px;
+            color: var(--text-main);
+            font-weight:600;
         }
         
         .sites-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-            gap: 15px;
+            grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+            gap: 18px;
         }
         
         .site-item {
@@ -175,93 +253,114 @@
             flex-direction: column;
             align-items: center;
             text-decoration: none;
-            color: #333;
-            padding: 10px;
-            border: 1px solid #eee;
-            border-radius: 4px;
-            transition: background-color 0.2s;
+            color: var(--text-main);
+            padding:16px 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            background-color:var(--bg-card);
+            transition: all 0.24s ease;
         }
         
         .site-item:hover {
-            background-color: #f9f9f9;
+            background-color: var(--bg-input);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-card);
+            border-color:var(--accent-blue);
         }
         
         .site-icon {
-            width: 40px;
-            height: 40px;
+            width: 44px;
+            height: 44px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-bottom: 8px;
-            background-color: #f0f0f0;
-            color: #555;
+            margin-bottom: 10px;
+            background-color: var(--icon-bg);
+            color: var(--accent-blue);
             font-weight: bold;
+            font-size:0.9rem;
         }
         
         .site-name {
-            font-size: 0.85rem;
+            font-size: 0.86rem;
             text-align: center;
         }
         
-        /* 更换为另一款优美的英语手写字体：Alex Brush */
+        /* 马善政毛笔行书 Ma Shan Zheng */
         .chinese-title {
-            font-family: 'Alex Brush', 'Great Vibes', 'Dancing Script', 'Pacifico', cursive, serif;
-            font-size: 3.2rem;
+            font-family: 'Ma Shan Zheng', cursive, serif;
+            font-size: 3.4rem;
             font-weight: 400;
-            text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.06);
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.08);
             margin-bottom: 10px;
-            letter-spacing: 1.5px;
-            color: #2c3e50;
+            letter-spacing: 2px;
+            color: var(--text-main);
+        }
+        html.dark .chinese-title{
+            color:#dbeafe;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.4);
         }
         
         .tools-section {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
         }
         
         .tool-card {
-            background: #f9f9f9;
-            border-radius: 4px;
-            padding: 15px;
-            border: 1px solid #eee;
+            background: var(--bg-card);
+            border-radius: 14px;
+            padding: 22px;
+            border: 1px solid var(--border-color);
+            transition: background-color 0.3s ease;
         }
         
         .time-display {
-            font-size: 1.5rem;
+            font-size: 1.7rem;
             font-weight: bold;
-            color: #333;
+            color: var(--text-main);
             text-align: center;
-            margin: 10px 0;
+            margin:12px 0;
+        }
+        html.dark .time-display{
+            color:#dbeafe;
         }
         
         .date-display {
             text-align: center;
-            color: #666;
+            color: var(--text-secondary);
             margin-bottom: 10px;
         }
         
         .quick-notes {
-            height: 120px;
+            height: 130px;
             width: 100%;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            padding: 10px;
+            background:var(--bg-input);
+            color:var(--text-main);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding:12px;
             font-size: 0.9rem;
             resize: none;
-            margin-top: 10px;
+            margin-top:12px;
+            transition: background 0.3s, color 0.3s;
+        }
+        .quick-notes::placeholder{
+            color:var(--text-placeholder);
         }
         
         .todo-list {
             list-style-type: none;
+            margin-top:8px;
         }
         
         .todo-item {
             display: flex;
             align-items: center;
-            padding: 8px 0;
-            border-bottom: 1px solid #eee;
+            padding: 9px 0;
+            border-bottom: 1px solid var(--border-color);
+            color:var(--text-main);
         }
         
         .todo-item input {
@@ -270,43 +369,62 @@
         
         .todo-item.completed {
             text-decoration: line-through;
-            color: #999;
+            color: var(--text-secondary);
         }
         
         .add-todo {
             display: flex;
-            margin-top: 10px;
+            margin-top:14px;
         }
         
         .add-todo input {
             flex: 1;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            margin-right: 5px;
+            padding: 10px 12px;
+            background:var(--bg-input);
+            color:var(--text-main);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            margin-right: 8px;
+            transition: background 0.3s;
+        }
+        .add-todo input::placeholder{
+            color:var(--text-placeholder);
         }
         
         .add-todo button {
-            background: #4a6cf7;
+            background: var(--bg-button);
             color: white;
             border: none;
-            border-radius: 4px;
-            padding: 8px 12px;
+            border-radius: 10px;
+            padding: 0 14px;
             cursor: pointer;
+            transition:background 0.2s;
+        }
+        .add-todo button:hover{
+            background:var(--bg-button-hover);
         }
         
         footer {
-            margin-top: 30px;
-            color: #777;
+            margin-top: 40px;
+            color: var(--text-secondary);
             text-align: center;
-            font-size: 0.85rem;
-            padding-top: 15px;
-            border-top: 1px solid #eee;
+            font-size: 0.84rem;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
         }
         
         @media (max-width: 768px) {
+            body{
+                padding:16px 8px;
+            }
+            .container{
+                padding:20px 16px;
+            }
+            .chinese-title{
+                font-size:2.4rem;
+            }
             .sites-grid {
-                grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+                grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
             }
             
             .tools-section {
@@ -314,19 +432,17 @@
             }
             
             .sidebar {
-                width: 220px;
-                left: -220px;
-            }
-            
-            .sidebar.active {
-                left: 0;
+                width: 240px;
+                left: -240px;
             }
         }
     </style>
-    <!-- 引入 Alex Brush 字体 (更优雅的手写体) 以及备用字体 -->
-    <link href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Great+Vibes&family=Dancing+Script:wght@400;700&family=Pacifico&display=swap" rel="stylesheet">
+    <!-- 引入马善政毛笔行书 Ma Shan Zheng -->
+    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
 </head>
 <body>
+    <!-- 主题切换按钮 -->
+    <button class="theme-toggle" id="theme-toggle">🌙深色模式</button>
     <!-- 侧边栏切换按钮 -->
     <button class="sidebar-toggle" id="sidebar-toggle">☰</button>
     
@@ -334,7 +450,7 @@
     <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <h2 class="sidebar-title">开发工具</h2>
-            <p style="color: #666; font-size: 0.9rem;">好玩的</p>
+            <p style="color: var(--text-secondary); font-size: 0.9rem;">好玩的</p>
         </div>
         
         <div class="sidebar-links">
@@ -368,7 +484,6 @@
 
     <div class="container" id="main-container">
         <header>
-            <!-- 标题字体已更换为 Alex Brush，其他内容未变 -->
             <h1 class="chinese-title">企鹅导航页</h1>
             <p>Exploring the world</p>
         </header>
@@ -488,6 +603,36 @@
     </div>
 
     <script>
+        // 主题切换逻辑
+        const themeToggle = document.getElementById('theme-toggle');
+        const htmlRoot = document.documentElement;
+        const STORAGE_KEY = "penguin-nav-theme";
+
+        // 读取本地存储
+        function loadTheme(){
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if(saved === "dark"){
+                htmlRoot.classList.add("dark");
+                themeToggle.textContent = "☀️浅色模式";
+            }else{
+                htmlRoot.classList.remove("dark");
+                themeToggle.textContent = "🌙深色模式";
+            }
+        }
+        loadTheme();
+
+        themeToggle.addEventListener('click', ()=>{
+            htmlRoot.classList.toggle('dark');
+            const isDark = htmlRoot.classList.contains('dark');
+            if(isDark){
+                themeToggle.textContent = "☀️浅色模式";
+                localStorage.setItem(STORAGE_KEY,"dark");
+            }else{
+                themeToggle.textContent = "🌙深色模式";
+                localStorage.setItem(STORAGE_KEY,"light");
+            }
+        });
+
         // 侧边栏功能
         const sidebar = document.getElementById('sidebar');
         const sidebarToggle = document.getElementById('sidebar-toggle');

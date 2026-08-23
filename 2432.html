@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>点击姓名查看照片</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, sans‑serif;
+        }
+        body {
+            background: #f5f7fa;
+            padding: 30px 16px;
+            max-width: 850px;
+            margin: 0 auto;
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 28px;
+            color: #222;
+        }
+        .btn-wrap {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 32px;
+        }
+        .name-btn {
+            padding: 10px 16px;
+            background-color: #2b65d9;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .name-btn:hover {
+            background-color: #1d4fb8;
+        }
+        .image-container {
+            width: 100%;
+            min-height: 240px;
+            border: 1px dashed #bbbbbb;
+            border‑radius:10px;
+            padding:20px;
+            display:flex;
+            align‑items:center;
+            justify‑content:center;
+            background:#fff;
+        }
+        #photo {
+            max-width:100%;
+            max-height:600px;
+            display:none;
+        }
+        .tip {
+            color:#777;
+            font-size:15px;
+        }
+    </style>
+</head>
+<body>
+    <h2>点击姓名查看照片</h2>
+    <div class="btn-wrap" id="buttonBox"></div>
+
+    <div class="image-container">
+        <span class="tip" id="tipText">点击上方姓名按钮，图片在此显示</span>
+        <img id="photo" alt="照片">
+    </div>
+
+    <script>
+        const nameList = [
+            "蔡锦添","蔡明成","常伟娜","常志文","唱馨月","郭博","郭昊纯","郝一鑫",
+            "侯瑞达","侯宣凯","及证阳","贾志鑫","姜昭宇","李明宇","李文龙","李鑫炜",
+            "李振威","刘佳","马子腾","牛小天","邱义尚","史雨欣","滕慧哲","滕钊杭",
+            "田文轩","王崇纬","王佳豪","王若溪","王昕宇","王亚琳","王绎然","席浩铭",
+            "薛峰","杨淼","尹锶宇","张浩烁","张明慧","张双媛","张晓丹","张宇涵",
+            "赵佳怡","赵静涵","郑家豪","郑子辉"
+        ];
+
+        const buttonBox = document.getElementById("buttonBox");
+        const photoImg = document.getElementById("photo");
+        const tipText = document.getElementById("tipText");
+
+        //生成全部按钮
+        nameList.forEach(name=>{
+            const btn = document.createElement("button");
+            btn.className = "name-btn";
+            btn.textContent = name;
+            btn.onclick = function(){
+                const url = `http://97hs.cn/2025/${name}.jpg`;
+                tipText.innerText = "加载中……";
+                photoImg.style.display = "none";
+
+                photoImg.src = url;
+                photoImg.onload = function(){
+                    tipText.innerText = "";
+                    photoImg.style.display = "block";
+                }
+                photoImg.onerror = function(){
+                    tipText.innerText = `【${name}】图片不存在或加载失败`;
+                    photoImg.style.display = "none";
+                }
+            }
+            buttonBox.appendChild(btn);
+        })
+    </script>
+</body>
+</html>

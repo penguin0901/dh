@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>常志文快跑</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:system-ui}
+body{background:#f7f7f7;display:flex;flex-direction:column;align-items:center;padding-top:20px}
+#gameWrap{position:relative;width:800px;height:400px;background:#ffffff;border:2px solid #333;overflow:hidden}
+#ground{position:absolute;bottom:0;width:100%;height:60px;background:#8b7355}
+#player{position:absolute;left:80px;width:60px;height:70px;bottom:60px;background-size:contain;background-repeat:no-repeat;background-position:center;
+background-image:url('http://97hs.cn/2025/%E5%B8%B8%E5%BF%97%E6%96%87.jpg');
+}
+.obstacle{position:absolute;width:45px;height:35px;background:#8b4513;border-radius:3px;color:#fff;text-align:center;line-height:35px;font-size:12px}
+#ui{position:absolute;top:10px;left:10px;font-size:18px;font-weight:bold}
+#startScreen,#overScreen{position:absolute;inset:0;background:rgba(0,0,0,0.6);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10}
+.btn{padding:10px 24px;font-size:18px;margin-top:16px;cursor:pointer}
+#mobileCtrl{margin-top:12px;display:flex;gap:10px}
+.ctrlBtn{width:80px;height:60px;font-size:22px}
+.hidden{display:none !important}
+</style>
+</head>
+<body>
+<h1>常志文快跑</h1>
+<div id="gameWrap">
+  <div id="ui">分数：<span id="score">0</span></div>
+  <div id="ground"></div>
+  <div id="player"></div>
+
+  <div id="startScreen">
+    <h2>常志文快跑</h2>
+    <p>空格 / ↑ 跳跃（长按跳更高），↓下蹲躲避A片本</p>
+    <button class="btn" id="startBtn">开始</button>
+  </div>
+
+  <div id="overScreen" class="hidden">
+    <h2>游戏结束</h2>
+    <p>最终分数：<span id="finalScore">0</span></p>
+    <button class="btn" id="restartBtn">再来一局</button>
+  </div>
+</div>
+
+<div id="mobileCtrl">
+  <button class="ctrlBtn" id="jumpBtn">跳跃</button>
+  <button class="ctrlBtn" id="duckBtn">下蹲</button>
+</div>
+
+<script>
+const gameWrap = document.getElementById('gameWrap');
+const player = document.getElementById('player');
+const startScreen = document.getElementById('startScreen');
+const overScreen = document.getElementById('overScreen');
+const startBtn = document.getElementById('startBtn');
+const restartBtn = document.getElementById('restartBtn');
+const scoreDom = document.getElementById('score');
+const finalScoreDom = document.getElementById('finalScore');
+const jumpBtn = document.getElementById('jumpBtn');
+const duckBtn = document.getElementById('duckBtn');
+
+let gameRunning = false;
+let score = 0;
+let playerBottom = 60;
+let velocityY = 0;
+const gravity = -0.6;
+let isDucking = false;
+let obstacles = [];
+let gameSpeed = 6;
+let obstacleSpawnTimer;
+let gameLoopId;
+let jumpHold = false;
+
+// 重置游戏状态
+function resetGame(){
+  score = 0;
+  scoreDom.innerText = score;
+  playerBottom = 60;
+  velocityY = 0;
+  isDucking = false;
+  player.style.bottom = playerBottom + 'px';
+  player.style.height = '70px';
+  obstacles.forEach(o=>o.el.remove());
+  obstacles = [];
+  gameSpeed = 6;
+}
+
+// 生成A片本障碍物
+function spawnObstacle(){
+  if(!gameRunning) return;
+  const el = document.createElement('div');
+  el.className = 'obstacle';
+  el.innerText = "A片";
+  // 随机：地面障碍 / 高空需要下蹲躲避
+  const isHigh = Math.random() > 0.5;
+  let bottomVal;
+  if(isHigh){
+    bottomVal = 110;
+  }else{
+    bottomVal = 60;
+  }
+  el.style.bottom = bottomVal + 'px';
+  el.style.left = gameWrap.clientWidth + 'px';
+  gameWrap.appendChild(el);
+  obstacles.push({el, isHigh, bottom:bottomVal});
+}
+
+// 跳跃
+function startJump(){
+  if(!gameRunning) return;
+  if(playerBottom <=65){
+    velocityY = 14;
+    jumpHold = true;
+  }
+}
+function stopJump(){
+  jumpHold = false;
+}
+
+// 下蹲
+function setDuck(active){
+  if(!gameRunning) return;
+  isDucking = active;
+  if(active){
+    player.style.height = "35px";
+  }else{
+    player.style.height = "70px";
+  }
+}
+
+// 碰撞检测
+function checkCollision(obs){
+  const pRect = player.getBoundingClientRect();
+  const oRect = obs.el.getBoundingClientRect();
+  const gRect = gameWrap.getBoundingClientRect();
+  const pr = {
+    left:pRect.left - gRect.left,
+    right:pRect.right - gRect.left,
+    top:pRect.top - gRect.top,
+    bottom:pRect.bottom - gRect.top
+  }
+  const or = {
+    left:oRect.left - gRect.left,
+    right:oRect.right - gRect.left,
+    top:oRect.top - gRect.top,
+    bottom:oRect.bottom - gRect.top
+  }
+  if(pr.right>or.left && pr.left<or.right && pr.bottom>or.top && pr.top<or.bottom){
+    return true;
+  }
+  return false;
+}
+
+function gameLoop(){
+  if(!gameRunning) return;
+  // 跳跃长按增益
+  if(jumpHold && velocityY>0){
+    velocityY +=0.35;
+  }
+  velocityY += gravity;
+  playerBottom += velocityY;
+  if(playerBottom <60){
+    playerBottom =60;
+    velocityY=0;
+  }
+  player.style.bottom = playerBottom + 'px';
+
+  // 修复：正确倒序遍历
+  for(let i = obstacles.length - 1; i >= 0; i--){
+    const obs = obstacles[i];
+    let leftVal = parseFloat(obs.el.style.left);
+    leftVal -= gameSpeed;
+    obs.el.style.left = leftVal + 'px';
+    if(checkCollision(obs)){
+      gameOver();
+      return;
+    }
+    if(leftVal < -60){
+      obs.el.remove();
+      obstacles.splice(i,1);
+      score +=10;
+      scoreDom.innerText = score;
+      // 略微提速
+      gameSpeed +=0.02;
+    }
+  }
+  gameLoopId = requestAnimationFrame(gameLoop);
+}
+
+function startGame(){
+  resetGame();
+  startScreen.classList.add('hidden');
+  overScreen.classList.add('hidden');
+  gameRunning = true;
+  gameLoopId = requestAnimationFrame(gameLoop);
+  obstacleSpawnTimer = setInterval(()=>{
+    spawnObstacle();
+  },1200);
+}
+
+function gameOver(){
+  gameRunning = false;
+  cancelAnimationFrame(gameLoopId);
+  clearInterval(obstacleSpawnTimer);
+  finalScoreDom.innerText = score;
+  overScreen.classList.remove('hidden');
+}
+
+// 键盘监听
+document.addEventListener('keydown',e=>{
+  if(e.code === 'Space' || e.code === 'ArrowUp'){
+    e.preventDefault();
+    startJump();
+  }
+  if(e.code === 'ArrowDown'){
+    e.preventDefault();
+    setDuck(true);
+  }
+})
+document.addEventListener('keyup',e=>{
+  if(e.code === 'Space' || e.code === 'ArrowUp'){
+    stopJump();
+  }
+  if(e.code === 'ArrowDown'){
+    setDuck(false);
+  }
+})
+
+// 触屏按钮
+jumpBtn.addEventListener('mousedown',startJump);
+jumpBtn.addEventListener('mouseup',stopJump);
+jumpBtn.addEventListener('touchstart',(e)=>{e.preventDefault();startJump()});
+jumpBtn.addEventListener('touchend',stopJump);
+
+duckBtn.addEventListener('mousedown',()=>setDuck(true));
+duckBtn.addEventListener('mouseup',()=>setDuck(false));
+duckBtn.addEventListener('touchstart',(e)=>{e.preventDefault();setDuck(true)});
+duckBtn.addEventListener('touchend',()=>setDuck(false));
+
+startBtn.onclick = startGame;
+restartBtn.onclick = startGame;
+</script>
+</body>
+</html>

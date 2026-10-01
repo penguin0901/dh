@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="referrer" content="no-referrer">
+<title>亲吻常志文</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    width: 100%; height: 100%;
+    overflow: hidden;
+    overscroll-behavior: none;
+  }
+  body {
+    background: radial-gradient(circle at 50% 40%, #2a0d18 0%, #12060b 60%, #000 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: crosshair;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    font-family: "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  }
+
+  #stage {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* ====== 图片：放大到接近全屏 ====== */
+  #photo {
+    width: 100vw;
+    height: 100vh;
+    max-width: 100vw;
+    max-height: 100vh;
+    object-fit: contain;      /* 保持比例完整显示，不裁切 */
+    display: block;
+    border-radius: 0;
+    box-shadow: 0 0 80px rgba(255, 60, 120, .35);
+    pointer-events: none;
+    -webkit-user-drag: none;
+    animation: floaty 6s ease-in-out infinite;
+  }
+  @keyframes floaty {
+    0%, 100% { transform: scale(1) translateY(0); }
+    50%      { transform: scale(1.012) translateY(-6px); }
+  }
+
+  #fallback {
+    color: #ffb3c9;
+    font-size: 20px;
+    padding: 40px 60px;
+    border: 2px dashed rgba(255, 100, 150, .5);
+    border-radius: 16px;
+    text-align: center;
+    line-height: 1.8;
+  }
+
+  /* ====== 唇印 ====== */
+  .kiss {
+    position: fixed;
+    pointer-events: none;
+    will-change: transform, opacity;
+    animation: kissPop 1.8s cubic-bezier(.2, .8, .3, 1) forwards;
+    filter: drop-shadow(0 0 6px rgba(255, 30, 80, .5));
+  }
+  @keyframes kissPop {
+    0%   { transform: translate(-50%, -50%) scale(.15) rotate(var(--rot)); opacity: 0; }
+    14%  { transform: translate(-50%, -50%) scale(1.18) rotate(var(--rot)); opacity: 1; }
+    28%  { transform: translate(-50%, -50%) scale(0.98) rotate(var(--rot)); opacity: .95; }
+    65%  { transform: translate(-50%, -50%) scale(1.04) rotate(var(--rot)); opacity: .55; }
+    100% { transform: translate(-50%, -50%) scale(1.35) rotate(var(--rot)); opacity: 0; }
+  }
+
+  /* ====== 提示 & 计数 ====== */
+  #hint {
+    position: fixed;
+    left: 50%;
+    bottom: 26px;
+    transform: translateX(-50%);
+    color: #ff9ec0;
+    font-size: 15px;
+    letter-spacing: 2px;
+    padding: 8px 20px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, .06);
+    border: 1px solid rgba(255, 120, 170, .25);
+    backdrop-filter: blur(6px);
+    pointer-events: none;
+    animation: hintPulse 1.6s ease-in-out infinite;
+    transition: opacity .5s;
+  }
+  @keyframes hintPulse {
+    0%, 100% { opacity: .55; }
+    50%      { opacity: 1; }
+  }
+
+  #counter {
+    position: fixed;
+    top: 16px;
+    right: 18px;
+    color: #ff7aa8;
+    font-size: 13px;
+    letter-spacing: 1px;
+    padding: 6px 14px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, .05);
+    border: 1px solid rgba(255, 120, 170, .2);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .3s;
+  }
+  #counter.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+  <div id="stage">
+    <img id="photo" alt="常志文"
+         src="czw.png">
+  </div>
+
+  <div id="hint">点击任意位置 😘</div>
+  <div id="counter">已经亲了 0 下 💋</div>
+
+<script>
+(function () {
+  var photo     = document.getElementById('photo');
+  var hint      = document.getElementById('hint');
+  var counterEl = document.getElementById('counter');
+  var stage     = document.getElementById('stage');
+
+  var uid = 0;
+  var count = 0;
+  var firstClick = true;
+
+  /* ---------- 图片加载失败兜底 ---------- */
+  photo.addEventListener('error', function () {
+    photo.style.display = 'none';
+    if (!document.getElementById('fallback')) {
+      var d = document.createElement('div');
+      d.id = 'fallback';
+      d.innerHTML = '图片加载失败 😢<br><span style="font-size:14px;opacity:.7">'
+                  + '（可能是网络或 http/https 混合内容限制）</span>';
+      stage.appendChild(d);
+    }
+  });
+
+  /* ---------- 生成唇印 SVG ---------- */
+  function kissSVG(id) {
+    return (
+      '<svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">' +
+        '<defs>' +
+          '<radialGradient id="kg' + id + '" cx="50%" cy="58%" r="68%">' +
+            '<stop offset="0%"   stop-color="#ff4166"/>' +
+            '<stop offset="50%"  stop-color="#e00036"/>' +
+            '<stop offset="100%" stop-color="#7d001a"/>' +
+          '</radialGradient>' +
+          '<filter id="kf' + id + '" x="-30%" y="-30%" width="160%" height="160%">' +
+            '<feGaussianBlur stdDeviation="0.7"/>' +
+          '</filter>' +
+        '</defs>' +
+        '<g fill="url(#kg' + id + ')" filter="url(#kf' + id + ')" opacity="0.94">' +
+          /* 上唇 */
+          '<path d="M50 44 C40 24 22 20 10 28 C0 35 2 48 10 55 ' +
+                   'C22 62 40 58 50 50 C60 58 78 62 90 55 ' +
+                   'C98 48 100 35 90 28 C78 20 60 24 50 44 Z"/>' +
+          /* 下唇 */
+          '<path d="M10 55 C18 80 34 90 50 90 C66 90 82 80 90 55 ' +
+                   'C78 64 62 68 50 68 C38 68 22 64 10 55 Z"/>' +
+        '</g>' +
+      '</svg>'
+    );
+  }
+
+  /* ---------- 生成一个唇印（尺寸已调小） ---------- */
+  function spawnKiss(x, y) {
+    uid++;
+    // 原为 70 ~ 135px，现缩小为 42 ~ 82px
+    var size = 42 + Math.random() * 40;
+    var rot  = (Math.random() * 76 - 38).toFixed(1) + 'deg'; // -38° ~ +38°
+
+    var kiss = document.createElement('div');
+    kiss.className = 'kiss';
+    kiss.style.left   = x + 'px';
+    kiss.style.top    = y + 'px';
+    kiss.style.width  = size + 'px';
+    kiss.style.height = size + 'px';
+    kiss.style.setProperty('--rot', rot);
+    kiss.innerHTML = kissSVG(uid);
+
+    document.body.appendChild(kiss);
+
+    kiss.addEventListener('animationend', function () {
+      if (kiss.parentNode) kiss.parentNode.removeChild(kiss);
+    });
+  }
+
+  /* ---------- 点击监听（鼠标 / 触摸 / 触控笔通用） ---------- */
+  document.addEventListener('pointerdown', function (e) {
+    if (e.button !== undefined && e.button !== 0) return; // 只响应左键/触摸
+    spawnKiss(e.clientX, e.clientY);
+
+    count++;
+    counterEl.textContent = '已经亲了志文 ' + count + ' 下 💋';
+    counterEl.classList.add('show');
+
+    if (firstClick) {
+      firstClick = false;
+      hint.style.opacity = '0';
+      hint.style.animation = 'none';
+    }
+  }, { passive: true });
+
+  /* 阻止长按选中 / 右键菜单，避免干扰 */
+  document.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+  document.addEventListener('dragstart',   function (e) { e.preventDefault(); });
+})();
+</script>
+</body>
+</html>

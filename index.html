@@ -581,13 +581,8 @@
             </div>
             
             <div class="tool-card">
-                <h2 class="section-title">待办事项</h2>
-                <ul class="todo-list" id="todo-list">
-                </ul>
-                <div class="add-todo">
-                    <input type="text" id="new-todo" placeholder="添加新任务...">
-                    <button id="add-todo-btn">添加</button>
-                </div>
+                <h2 class="section-title">留言板</h2>
+                <a href="https://penguin0901.github.io/dh/message.html" class="message-btn" target="_blank">我要留言</a>
             </div>
             
             <div class="tool-card">
@@ -678,51 +673,7 @@
             }
         });
         
-        // 待办事项功能
-        document.getElementById('add-todo-btn').addEventListener('click', function() {
-            const input = document.getElementById('new-todo');
-            const text = input.value.trim();
-            
-            if (text) {
-                const todoList = document.getElementById('todo-list');
-                const newItem = document.createElement('li');
-                newItem.className = 'todo-item';
-                newItem.innerHTML = `
-                    <input type="checkbox">
-                    <span>${text}</span>
-                `;
-                
-                // 添加复选框事件
-                newItem.querySelector('input').addEventListener('change', function() {
-                    if (this.checked) {
-                        newItem.classList.add('completed');
-                    } else {
-                        newItem.classList.remove('completed');
-                    }
-                });
-                
-                todoList.appendChild(newItem);
-                input.value = '';
-            }
-        });
-        
-        // 为现有待办项添加事件
-        document.querySelectorAll('.todo-item input').forEach(checkbox => {
-            checkbox.addEventListener('change', function() {
-                if (this.checked) {
-                    this.parentElement.classList.add('completed');
-                } else {
-                    this.parentElement.classList.remove('completed');
-                }
-            });
-        });
-        
-        // 允许按Enter键添加待办事项
-        document.getElementById('new-todo').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                document.getElementById('add-todo-btn').click();
-            }
-        });
+ 
     </script>
 </body>
 </html>

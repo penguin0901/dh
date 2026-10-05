@@ -1,207 +1,190 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>实时涂鸦白板 · Supabase + GitHub Pages</title>
-<style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body { height: 100%; overflow: hidden; font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; }
-  #board { display: block; width: 100vw; height: 100vh; background: #fff; cursor: crosshair; touch-action: none; }
-  .toolbar {
-    position: fixed; top: 12px; left: 50%; transform: translateX(-50%);
-    display: flex; align-items: center; gap: 10px;
-    background: rgba(255,255,255,.92); backdrop-filter: blur(8px);
-    padding: 8px 14px; border-radius: 999px;
-    box-shadow: 0 4px 18px rgba(0,0,0,.12); z-index: 10;
-  }
-  .toolbar label { font-size: 12px; color: #555; }
-  .toolbar input[type=color] { width: 32px; height: 32px; border: none; background: none; cursor: pointer; padding: 0; }
-  .toolbar input[type=range] { width: 90px; }
-  .toolbar button {
-    border: none; background: #f1f3f5; padding: 6px 12px; border-radius: 999px;
-    font-size: 13px; cursor: pointer; color: #333;
-  }
-  .toolbar button:hover { background: #e2e6ea; }
-  .toolbar button.danger { background: #ffe3e3; color: #c92a2a; }
-  .status {
-    position: fixed; bottom: 12px; right: 14px; z-index: 10;
-    font-size: 12px; color: #888; background: rgba(255,255,255,.85);
-    padding: 4px 10px; border-radius: 999px;
-  }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>持久实时涂鸦白板</title>
+  <style>
+    * {margin:0;padding:0;box-sizing:border-box}
+    body {background:#eee; overflow:hidden}
+    #controls {padding:8px; background:#fff; display:flex; gap:8px; align-items:center; flex-wrap:wrap}
+    canvas {
+      display:block;
+      background:white;
+      cursor:crosshair;
+      touch-action: none; /* 关键：禁止手机拖动页面 */
+    }
+  </style>
 </head>
 <body>
-  <canvas id="board"></canvas>
+<div id="controls">
+  <input type="color" id="color" value="#000000">
+  <input type="range" id="lineWidth" min="1" max="30" value="3">
+  <span id="widthText">3</span>
+  <button id="clearBtn">清空白板</button>
+</div>
+<canvas id="canvas"></canvas>
 
-  <div class="toolbar">
-    <label>颜色</label>
-    <input type="color" id="color" value="#e64980" />
-    <label>粗细</label>
-    <input type="range" id="size" min="1" max="20" value="4" />
-    <button id="undo" title="撤销上一笔">撤销</button>
-    <button id="clear" class="danger">清空白板</button>
-  </div>
-  <div class="status" id="status">连接中…</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script>
+// ========== 在这里替换你的 Supabase 信息 ==========
+const SUPABASE_URL = "https://jskammvczvlyypikeaiw.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_rAfWptptOQo46j4cmCq7Hw_RXm6nANl";
+const ROOM_ID           = "room001";
 
-<script type="module">
-  // ============================================================
-  // ① 填入你自己的 Supabase 项目 URL 和 anon key（见下方说明）
-  // ============================================================
-  const SUPABASE_URL = "https://jskammvczvlyypikeaiw.supabase.co";
-  const SUPABASE_ANON_KEY = "sb_publishable_rAfWptptOQo46j4cmCq7Hw_RXm6nANl";
-  // 房间名：同一个房间的人互相看到；改这个名字即可开多个白板
-  const ROOM = "default-room";
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
-  const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+const colorInput = document.getElementById("color");
+const widthInput = document.getElementById("lineWidth");
+const widthText = document.getElementById("widthText");
+const clearBtn = document.getElementById("clearBtn");
 
-  const canvas = document.getElementById("board");
-  const ctx = canvas.getContext("2d");
-  const colorEl = document.getElementById("color");
-  const sizeEl = document.getElementById("size");
-  const statusEl = document.getElementById("status");
+let isDrawing = false;
+let currentPoints = [];
 
-  // 适配高分屏
-  function resize() {
-    const dpr = window.devicePixelRatio || 1;
-    // 保留当前画面
-    const prev = canvas.width ? ctx.getImageData(0, 0, canvas.width, canvas.height) : null;
-    canvas.width = window.innerWidth * dpr;
-    canvas.height = window.innerHeight * dpr;
-    canvas.style.width = window.innerWidth + "px";
-    canvas.style.height = window.innerHeight + "px";
-    ctx.scale(dpr, dpr);
-    ctx.lineCap = "round";
-    ctx.lineJoin = "round";
-    if (prev) ctx.putImageData(prev, 0, 0);
-  }
-  window.addEventListener("resize", resize);
-  resize();
-
-  let drawing = false;
-  let last = null;
-  let channel = null;
-  const myId = Math.random().toString(36).slice(2, 8);
-
-  function pos(e) {
-    const r = canvas.getBoundingClientRect();
-    const p = e.touches ? e.touches[0] : e;
-    return { x: p.clientX - r.left, y: p.clientY - r.top };
-  }
-  function strokeSegment(a, b, color, size) {
-    ctx.strokeStyle = color;
-    ctx.lineWidth = size;
-    ctx.beginPath();
-    ctx.moveTo(a.x, a.y);
-    ctx.lineTo(b.x, b.y);
-    ctx.stroke();
-  }
-
-  // ---- 本端落笔 / 移动 / 抬笔 ----
-  function start(e) {
-    drawing = true;
-    last = pos(e);
-    broadcast({ type: "start", from: myId, at: ROOM, x: last.x, y: last.y,
-               color: colorEl.value, size: +sizeEl.value });
-  }
-  function move(e) {
-    if (!drawing) return;
-    const p = pos(e);
-    strokeSegment(last, p, colorEl.value, +sizeEl.value);
-    broadcast({ type: "draw", from: myId, at: ROOM, x0: last.x, y0: last.y, x1: p.x, y1: p.y });
-    last = p;
-  }
-  function end() {
-    if (!drawing) return;
-    drawing = false;
-    broadcast({ type: "end", from: myId, at: ROOM });
-    saveStroke(); // 防抖持久化到数据库
-  }
-  canvas.addEventListener("mousedown", start);
-  canvas.addEventListener("mousemove", move);
-  window.addEventListener("mouseup", end);
-  canvas.addEventListener("touchstart", (e) => { e.preventDefault(); start(e); }, { passive: false });
-  canvas.addEventListener("touchmove", (e) => { e.preventDefault(); move(e); }, { passive: false });
-  canvas.addEventListener("touchend", end);
-
-  // ---- 广播 / 接收 ----
-  function broadcast(msg) {
-    channel?.send({ type: "broadcast", event: "draw", payload: msg });
-  }
-
-  function listen(msg) {
-    if (!msg || msg.at !== ROOM) return;
-    if (msg.from === myId) return;
-    if (msg.type === "start") {
-      ctx.strokeStyle = msg.color;
-      ctx.lineWidth = msg.size;
-      ctx.beginPath();
-      ctx.moveTo(msg.x, msg.y);
-      ctx.stroke();
-      strokes[msg.from] = { x: msg.x, y: msg.y, color: msg.color, size: msg.size };
-    } else if (msg.type === "draw") {
-      ctx.strokeStyle = msg.color || strokes[msg.from]?.color || "#000";
-      ctx.lineWidth = msg.size || strokes[msg.from]?.size || 2;
-      ctx.beginPath();
-      ctx.moveTo(msg.x0, msg.y0);
-      ctx.lineTo(msg.x1, msg.y1);
-      ctx.stroke();
-    } else if (msg.type === "clear") {
-      clearCanvas(false);
+// 获取画布相对坐标（鼠标/触摸通用）
+function getPos(e) {
+  const rect = canvas.getBoundingClientRect();
+  if(e.touches){
+    // 触摸事件
+    return {
+      x: e.touches[0].clientX - rect.left,
+      y: e.touches[0].clientY - rect.top
     }
+  }else{
+    // 鼠标事件
+    return {x:e.offsetX, y:e.offsetY}
   }
-  const strokes = {};
+}
 
-  // ---- 连接 Supabase Realtime ----
-  channel = sb.channel(`room:${ROOM}`, { config: { broadcast: { self: false } } })
-    .on("broadcast", { event: "draw"}, ({ payload }) => listen(payload))
-    .subscribe((status) => {
-      statusEl.textContent = status === "SUBSCRIBED"
-        ? `已连接 · 房间 ${ROOM}` : `状态：${status}`;
-      if (status === "SUBSCRIBED") loadHistory();
-    });
+// 画布自适应窗口
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight - 50;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
 
-  // ---- 历史回放：从 drawings 表读取并按时间重放 ----
-  async function loadHistory() {
-    const { data } = await sb.from("drawings")
-      .select("payload")
-      .eq("room", ROOM)
-      .order("created_at", { ascending: true });
-    if (!data) return;
-    for (const row of data) {
-      try { listen({ ...row.payload, from: row.payload.from + ":hist", at: ROOM }); } catch {}
-    }
+widthInput.oninput = ()=> widthText.innerText = widthInput.value;
+
+// 绘制一条笔迹
+function drawStroke(points, color, line_width) {
+  if(points.length < 2) return;
+  ctx.beginPath();
+  ctx.strokeStyle = color;
+  ctx.lineWidth = line_width;
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  ctx.moveTo(points[0].x, points[0].y);
+  for(let i=1; i<points.length; i++){
+    ctx.lineTo(points[i].x, points[i].y);
   }
+  ctx.stroke();
+}
 
-  // ---- 持久化：把“一整笔”打包存进 drawings 表 ----
-  let saveTimer = null;
-  function saveStroke() {
-    clearTimeout(saveTimer);
-    saveTimer = setTimeout(async () => {
-      // 简化：把最近一次完整事件作为一条记录存。
-      // 生产环境可改为按 strokeId 批量存点。
-      await sb.from("drawings").insert({
-        room: ROOM,
-        payload: { type: "stroke", from: myId, at: ROOM,
-                    color: colorEl.value, size: +sizeEl.value, t: Date.now() }
-      });
-    }, 400);
+// 1. 页面加载：读取数据库所有历史笔迹，全部画出来
+async function loadHistoryDrawings(){
+  const {data, error} = await supabase
+    .from('drawings')
+    .select('*')
+    .eq('room', ROOM_ID)
+    .order('created_at', {asc:true})
+  if(error) console.error("加载历史失败", error);
+  else {
+    data.forEach(item => {
+      drawStroke(item.points, item.color, item.line_width)
+    })
   }
+}
 
-  // ---- 清空 ----
-  function clearCanvas(broadcastIt = true) {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    if (broadcastIt) broadcast({ type: "clear", from: myId, at: ROOM });
-  }
-  document.getElementById("clear").onclick = async () => {
-    if (!confirm("确定清空整个白板？所有人都会看到。")) return;
-    clearCanvas(true);
-    await sb.from("drawings").delete().eq("room", ROOM);
-  };
-  document.getElementById("undo").onclick = () => {
-    alert("撤销为本地功能：请刷新页面重新加载历史来恢复。");
-  };
+// 2. 订阅实时更新：新增线条 + 删除（清空）
+function subscribeRealtime(){
+  supabase
+    .channel(`drawing:${ROOM_ID}`)
+    .on('postgres_changes', {
+      event: 'INSERT',
+      schema: 'public',
+      table: 'drawings',
+      filter: `room=eq.${ROOM_ID}`
+    }, (payload)=>{
+      const newStroke = payload.new;
+      drawStroke(newStroke.points, newStroke.color, newStroke.line_width)
+    })
+    .on('postgres_changes', {
+      event: 'DELETE',
+      schema: 'public',
+      table: 'drawings',
+      filter: `room=eq.${ROOM_ID}`
+    }, ()=>{
+      ctx.clearRect(0,0,canvas.width, canvas.height);
+    })
+    .subscribe()
+}
+
+// ======== 鼠标事件（电脑） ========
+canvas.onmousedown = (e)=>{
+  isDrawing = true;
+  const pos = getPos(e);
+  currentPoints = [{x:pos.x, y:pos.y}]
+}
+canvas.onmousemove = (e)=>{
+  if(!isDrawing) return;
+  const pos = getPos(e);
+  currentPoints.push({x:pos.x, y:pos.y})
+  drawStroke([currentPoints[currentPoints.length-2], currentPoints[currentPoints.length-1]], colorInput.value, widthInput.value)
+}
+canvas.onmouseup = async ()=>{
+  if(!isDrawing) return;
+  isDrawing = false;
+  if(currentPoints.length <2) return;
+  await supabase.from('drawings').insert({
+    room: ROOM_ID,
+    points: currentPoints,
+    color: colorInput.value,
+    line_width: Number(widthInput.value)
+  })
+}
+canvas.onmouseleave = canvas.onmouseup;
+
+// ======== 触摸事件（手机）【新增】 ========
+canvas.ontouchstart = (e)=>{
+  e.preventDefault();
+  isDrawing = true;
+  const pos = getPos(e);
+  currentPoints = [{x:pos.x, y:pos.y}]
+}
+canvas.ontouchmove = (e)=>{
+  e.preventDefault();
+  if(!isDrawing) return;
+  const pos = getPos(e);
+  currentPoints.push({x:pos.x, y:pos.y})
+  drawStroke([currentPoints[currentPoints.length-2], currentPoints[currentPoints.length-1]], colorInput.value, widthInput.value)
+}
+canvas.ontouchend = async (e)=>{
+  e.preventDefault();
+  if(!isDrawing) return;
+  isDrawing = false;
+  if(currentPoints.length <2) return;
+  await supabase.from('drawings').insert({
+    room: ROOM_ID,
+    points: currentPoints,
+    color: colorInput.value,
+    line_width: Number(widthInput.value)
+  })
+}
+canvas.ontouchcancel = canvas.ontouchend;
+
+// 清空白板
+clearBtn.onclick = async ()=>{
+  await supabase.from('drawings').delete().eq('room', ROOM_ID);
+  ctx.clearRect(0,0,canvas.width, canvas.height);
+}
+
+// 初始化
+loadHistoryDrawings();
+subscribeRealtime();
 </script>
 </body>
 </html>

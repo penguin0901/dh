@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>跳转中</title>
+</head>
+<body>
+<script>
+var u = new URLSearchParams(location.search).get('url');
+if (!u) document.body.innerText = '用法：本页面?url=目标网址';
+else location.href = /^https?:\/\//i.test(u) ? u : 'https://' + u;
+</script>
+</body>
+</html>

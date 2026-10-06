@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>企鹅导航页</title>
+    <meta name="description" content="企鹅导航页">
+    <link rel="icon" href="penguin.ico">
+    <style>
+        /* CSS变量：浅色为默认 */
+        :root {
+            --bg-body: #f5f7fa;
+            --bg-container: rgba(255,255,255,0.22);
+            --bg-card: rgba(255,255,255,0.18);
+            --bg-sidebar: rgba(255,255,255,0.24);
+            --bg-input: rgba(255,255,255,0.65);
+            --bg-button: #254b9c;
+            --bg-button-hover: #3663c2;
+            --bg-container: rgba(255, 255, 255, 0.35);
+            --bg-card: rgba(255, 255, 255, 0.28);
+            --bg-sidebar: rgba(255, 255, 255, 0.4);
+            --bg-input: rgba(255, 255, 255, 0.75);
+            --icon-bg: rgba(255, 255, 255, 0.55);
+        }
+        /* 深色主题类 */
+        html.dark {
+            --bg-container: rgba(15, 23, 42, 0.55);
+            --bg-card: rgba(30, 41, 59, 0.5);
+            --bg-sidebar: rgba(15, 23, 42, 0.6);
+            --bg-input: rgba(51, 65, 85, 0.8);
+            --icon-bg: rgba(255, 255, 255, 0.18);
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        }
+        
+        body {
+            /* 二次元背景图 */
+            background: url("bg3.jpg") no-repeat center center fixed;
+            background-size: cover;
+            background-color: #111827;
+            color: var(--text-main);
+            line-height: 1.6;
+            padding: 24px 16px;
+            min-height: 100vh;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        
+        .container {
+            max-width: 1040px;
+            margin: 0 auto;
+            background-color: var(--bg-container);
+            backdrop-filter: blur(var(--backdrop-blur));
+            -webkit-backdrop-filter: blur(var(--backdrop-blur));
+            padding: 32px;
+            border-radius: 16px;
+            border:1px solid var(--border-color);
+            box-shadow: var(--shadow-normal);
+            transition: margin-left 0.3s ease, background-color 0.3s ease;
+        }
+        /* 主题切换按钮 右上角 */
+        .theme-toggle {
+            position: fixed;
+            top:14px;
+            right:14px;
+            z-index:1002;
+            padding: 8px 12px;
+            border-radius:10px;
+            border:1px solid var(--border-color);
+            background: var(--bg-card);
+            backdrop-filter: blur(var(--backdrop-blur));
+            -webkit-backdrop-filter: blur(var(--backdrop-blur));
+            color: var(--text-main);
+            cursor:pointer;
+            font-size:18px;
+            box-shadow: var(--shadow-normal);
+            transition: all 0.25s;
+        }
+        .theme-toggle:hover{
+            background-color: var(--bg-input);
+        }
+        
+        /* 侧边栏样式 */
+        .sidebar {
+            position: fixed;
+            left: -260px;
+            top: 0;
+            width: 260px;
+            height: 100%;
+            background-color: var(--bg-sidebar);
+            backdrop-filter: blur(var(--backdrop-blur));
+            -webkit-backdrop-filter: blur(var(--backdrop-blur));
+            transition: left 0.3s ease, background-color 0.3s ease;
+            z-index: 1000;
+            box-shadow: var(--shadow-normal);
+            overflow-y: auto;
+            border-right: 1px solid var(--border-sidebar);
+        }
+        
+        .sidebar.active {
+            left: 0;
+        }
+        
+        .sidebar-toggle {
+            position: fixed;
+            left: 14px;
+            top: 14px;
+            background: var(--bg-sidebar);
+            backdrop-filter: blur(var(--backdrop-blur));
+            -webkit-backdrop-filter: blur(var(--backdrop-blur));
+            color: var(--text-main);
+            border: 1px solid var(--border-sidebar);
+            border-radius: 10px;
+            padding: 10px 14px;
+            cursor: pointer;
+            z-index: 1001;
+            font-size: 20px;
+            box-shadow: var(--shadow-normal);
+            transition: background 0.25s;
+        }
+        
+        .sidebar-toggle:hover {
+            background: var(--bg-card);
+        }
+        
+        .sidebar-header {
+            padding: 24px 20px;
+            text-align: center;
+            border-bottom: 1px solid var(--border-sidebar);
+            margin-top: 48px;
+        }
+        
+        .sidebar-title {
+            color: var(--text-main);
+            font-size: 1.25rem;
+            margin-bottom: 6px;
+        }
+        
+        .sidebar-links {
+            padding: 16px 0;
+        }
+        
+        .sidebar-link {
+            display: block;
+            padding: 13px 24px;
+            color: var(--text-main);
+            text-decoration: none;
+            transition: all 0.22s ease;
+            border-left: 3px solid transparent;
+        }
+        
+        .sidebar-link:hover {
+            background-color: var(--bg-card);
+            border-left: 3px solid var(--accent-blue);
+        }
+        
+        .sidebar-section {
+            margin-bottom: 24px;
+        }
+        
+        .sidebar-section-title {
+            padding: 12px 24px;
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 36px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        h1 {
+            font-size: 1.8rem;
+            color: var(--text-main);
+            margin-bottom: 6px;
+        }
+        header p {
+            color: var(--text-secondary);
+        }
+        
+        .search-container {
+            display: flex;
+            margin-bottom: 36px;
+        }
+        
+        .search-container input {
+            flex: 1;
+            padding: 14px 18px;
+            background-color: var(--bg-input);
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            border-radius: 12px 0 0 12px;
+            font-size: 1rem;
+            outline: none;
+            transition: border 0.25s, background 0.3s;
+        }
+        .search-container input::placeholder {
+            color:var(--text-placeholder);
+        }
+        .search-container input:focus {
+            border-color:var(--accent-blue);
+        }
+        
+        .search-container button {
+            background: var(--bg-button);
+            color: white;
+            border: none;
+            padding: 0 26px;
+            border-radius: 0 12px 12px 0;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.2s;
+        }
+        
+        .search-container button:hover {
+            background: var(--bg-button-hover);
+        }
+        
+        .sites-section {
+            margin-bottom: 36px;
+        }
+        
+        .section-title {
+            font-size: 1.25rem;
+            margin-bottom: 18px;
+            color: var(--text-main);
+            font-weight:600;
+        }
+        
+        .sites-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+            gap: 18px;
+        }
+        
+        .site-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: var(--text-main);
+            padding:16px 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            background-color:var(--bg-card);
+            backdrop-filter: blur(var(--backdrop-blur));
+            -webkit-backdrop-filter: blur(var(--backdrop-blur));
+            transition: all 0.24s ease;
+        }
+        
+        .site-item:hover {
+            background-color: var(--bg-input);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-card);
+            border-color:var(--accent-blue);
+        }
+        
+        .site-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+            background-color: var(--icon-bg);
+            color: var(--accent-blue);
+            font-weight: bold;
+            font-size:0.9rem;
+        }
+        
+        .site-name {
+            font-size: 0.86rem;
+            text-align: center;
+        }
+        
+        /* 马善政毛笔行书 Ma Shan Zheng */
+        .chinese-title {
+            font-family: 'Ma Shan Zheng', cursive, serif;
+            font-size: 3.4rem;
+            font-weight: 400;
+            text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.25);
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+            color: var(--text-main);
+        }
+        html.dark .chinese-title{
+            color:#dbeafe;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.4);
+        }
+        
+        .tools-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+        }
+        
+        .tool-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(var(--backdrop-blur));
+            -webkit-backdrop-filter: blur(var(--backdrop-blur));
+            border-radius: 14px;
+            padding: 22px;
+            border: 1px solid var(--border-color);
+            transition: background-color 0.3s ease;
+        }
+        
+        .time-display {
+            font-size: 1.7rem;
+            font-weight: bold;
+            color: var(--text-main);
+            text-align: center;
+            margin:12px 0;
+        }
+        html.dark .time-display{
+            color:#dbeafe;
+        }
+        
+        .date-display {
+            text-align: center;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+        }
+        
+        .quick-notes {
+            height: 130px;
+            width: 100%;
+            background:var(--bg-input);
+            color:var(--text-main);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding:12px;
+            font-size: 0.9rem;
+            resize: none;
+            margin-top:12px;
+            transition: background 0.3s, color 0.3s;
+        }
+        .quick-notes::placeholder{
+            color:var(--text-placeholder);
+        }
+        
+        .todo-list {
+            list-style-type: none;
+            margin-top:8px;
+        }
+        
+        .todo-item {
+            display: flex;
+            align-items: center;
+            padding: 9px 0;
+            border-bottom: 1px solid var(--border-color);
+            color:var(--text-main);
+        }
+        
+        .todo-item input {
+            margin-right: 10px;
+        }
+        
+        .todo-item.completed {
+            text-decoration: line-through;
+            color: var(--text-secondary);
+        }
+        
+        .add-todo {
+            display: flex;
+            margin-top:14px;
+        }
+        
+        .add-todo input {
+            flex: 1;
+            padding: 10px 12px;
+            background:var(--bg-input);
+            color:var(--text-main);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            margin-right: 8px;
+            transition: background 0.3s;
+        }
+        .add-todo input::placeholder{
+            color:var(--text-placeholder);
+        }
+        
+        .add-todo button {
+            background: var(--bg-button);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 0 14px;
+            cursor: pointer;
+            transition:background 0.2s;
+        }
+        .add-todo button:hover{
+            background:var(--bg-button-hover);
+        }
+        .message-btn{
+            display:inline-block;
+            margin-top:10px;
+            padding:8px 14px;
+            background:var(--bg-button);
+            color:#fff;
+            border-radius:8px;
+            text-decoration:none;
+        }
+        .message-btn:hover{
+            background:var(--bg-button-hover);
+        }
+        footer {
+            margin-top: 40px;
+            color: var(--text-secondary);
+            text-align: center;
+            font-size: 0.84rem;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        @media (max-width: 768px) {
+            body{
+                padding:16px 8px;
+            }
+            .container{
+                padding:20px 16px;
+            }
+            .chinese-title{
+                font-size:2.4rem;
+            }
+            .sites-grid {
+                grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+            }
+            
+            .tools-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                width: 240px;
+                left: -240px;
+            }
+        }
+    </style>
+    <!-- 引入马善政毛笔行书 Ma Shan Zheng -->
+    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- 主题切换按钮 -->
+    <button class="theme-toggle" id="theme-toggle">🌙深色模式</button>
+    <!-- 侧边栏切换按钮 -->
+    <button class="sidebar-toggle" id="sidebar-toggle">☰</button>
+    
+    <!-- 左侧滑出侧边栏 -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2 class="sidebar-title">开发工具</h2>
+            <p style="color: var(--text-secondary); font-size: 0.9rem;">好玩的</p>
+        </div>
+        
+        <div class="sidebar-links">
+            <div class="sidebar-section">
+                <div class="sidebar-section-title">实用工具</div>
+                <a href="https://penguin0901.github.io/wk/" class="sidebar-link" target="_blank">企鹅文库</a>
+                <a href="https://penguin0901.github.io/dh/whiteboard.html" class="sidebar-link" target="_blank">企鹅在线涂鸦</a>
+                <a href="https://snapany.com/zh/" class="sidebar-link" target="_blank">万能视频下载</a>
+                <a href="https://penguin0901.github.io/dh/tool/lp.html" class="sidebar-link" target="_blank">屏幕录制</a>
+                <a href="https://penguin0901.github.io/dh/tool/suijishu.html" class="sidebar-link" target="_blank">随机数生成</a>
+                <a href="https://penguin0901.github.io/dh/tool/candle.html" class="sidebar-link" target="_blank">点亮蜡烛</a>
+                <a href="https://penguin0901.github.io/dh/tool/junjuniloveyou.html" class="sidebar-link" target="_blank">给峻峻表白</a>
+                <a href="https://penguin0901.github.io/dh/%E4%B8%9C%E6%96%B9%E5%A4%9C%E9%9B%80%E9%A3%9F%E5%A0%82%20%E5%A4%B4%E5%83%8F%26%E8%A1%A8%E6%83%85%E5%8C%85%20~%20Avatar%20Image.rar" class="sidebar-link" target="_blank">东方夜雀食堂 头像&表情包 ~ Avatar Image</a>
+            </div>
+            <div class="sidebar-section">
+                <div class="sidebar-section-title">水柜天团两周年galgame</div>
+                <a href="https://penguin0901.github.io/dh/tankerose/src/" class="sidebar-link" target="_blank">铁履与红雪</a>
+            </div>
+            
+            <div class="sidebar-section">
+                <div class="sidebar-section-title">好玩游戏</div>
+                <a href="https://mc.kurogames.com/cloud/index.html" class="sidebar-link" target="_blank">云鸣潮（网页云游戏）</a>
+                <a href="https://penguin0901.github.io/dh/game/tanchishe.html" class="sidebar-link" target="_blank">越蛇越多</a>
+                <a href="https://penguin0901.github.io/dh/game/czw.html" class="sidebar-link" target="_blank">常志文快跑</a>
+                <a href="https://penguin0901.github.io/dh/game/qwczw/qwczw.html" class="sidebar-link" target="_blank">亲吻常志文</a>
+                <a href="https://penguin0901.github.io/dh/game/datanguan.html" class="sidebar-link" target="_blank">打贪官</a>
+                <a href="https://penguin0901.github.io/dh/game/tetris.html" class="sidebar-link" target="_blank">乌克兰方块</a>
+                <a href="https://penguin0901.github.io/dh/game/911.html" class="sidebar-link" target="_blank">飞机撞大楼</a>
+                <a href="https://penguin0901.github.io/dh/game/dycxy.html" class="sidebar-link" target="_blank">大鱼吃小鱼</a>
+            </div>
+            
+            <div class="sidebar-section">
+                <div class="sidebar-section-title">百科查询</div>
+                <a href="https://baike.baidu.com" class="sidebar-link" target="_blank">百度百科</a>
+                <a href="https://www.britannica.com" class="sidebar-link" target="_blank">大英百科全书</a>
+                <a href="https://zh.wikipedia.org" class="sidebar-link" target="_blank">维基百科</a>
+            </div>
+        </div>
+    </div>
+    <div class="container" id="main-container">
+        <header>
+            <h1 class="chinese-title">企鹅导航页</h1>
+            <p>Exploring the world</p>
+        </header>
+        
+        <div class="search-container">
+            <input type="text" id="search-input" placeholder="百度搜索...">
+            <button id="search-btn">搜索</button>
+        </div>
+        
+        <div class="sites-section">
+            <h2 class="section-title">常用网站</h2>
+            <div class="sites-grid">
+                <a href="http://97hs.cn" class="site-item" target="_blank">
+                    <div class="site-icon">钟灵</div>
+                    <span class="site-name">钟灵毓秀</span>
+                </a>
+                
+                <a href="https://penguin0901.github.io/sgtt/" class="site-item" target="_blank">
+                    <div class="site-icon">水柜</div>
+                    <span class="site-name">水柜天团网</span>
+                </a>
+                
+                <a href="https://www.bilibili.com" class="site-item" target="_blank">
+                    <div class="site-icon">哔哩</div>
+                    <span class="site-name">哔哩哔哩</span>
+                </a>
+                
+                <a href="https://m.xml.wiki/" class="site-item" target="_blank">
+                    <div class="site-icon">Anywhere</div>
+                    <span class="site-name">Anywhere</span>
+                </a>
+                
+                <a href="https://chat.deepseek.com/" class="site-item" target="_blank">
+                    <div class="site-icon">DeepSeek</div>
+                    <span class="site-name">DeepSeek</span>
+                </a>
+                
+                <a href="https://www.doubao.com/chat/" class="site-item" target="_blank">
+                    <div class="site-icon">豆包</div>
+                    <span class="site-name">豆包</span>
+                </a>
+                
+                <a href="https://www.zhihu.com" class="site-item" target="_blank">
+                    <div class="site-icon">知乎</div>
+                    <span class="site-name">知乎</span>
+                </a>
+                
+                <a href="https://www.bmcx.com/" class="site-item" target="_blank">
+                    <div class="site-icon">便民</div>
+                    <span class="site-name">便民查询网</span>
+                </a>
+                
+                <a href="https://www.douyin.com" class="site-item" target="_blank">
+                    <div class="site-icon">抖音</div>
+                    <span class="site-name">抖音</span>
+                </a>
+                
+                <a href="https://www.github.com" class="site-item" target="_blank">
+                    <div class="site-icon">GitHub</div>
+                    <span class="site-name">GitHub</span>
+                </a>
+                
+                <a href="https://www.moqukeji.com/" class="site-item" target="_blank">
+                    <div class="site-icon">墨趣</div>
+                    <span class="site-name">墨趣</span>
+                </a>
+                
+                <a href="https://baike.baidu.com" class="site-item" target="_blank">
+                    <div class="site-icon">百度</div>
+                    <span class="site-name">百度百科</span>
+                </a>
+                
+                <a href="https://www.britannica.com" class="site-item" target="_blank">
+                    <div class="site-icon">大英</div>
+                    <span class="site-name">大英百科全书</span>
+                </a>
+                
+            </div>
+        </div>
+        
+        <div class="tools-section">
+            <div class="tool-card">
+                <h2 class="section-title">时间与日期</h2>
+                <div class="time-display" id="current-time">00:00:00</div>
+                <div class="date-display" id="current-date">2023年1月1日 星期X</div>
+            </div>
+            
+            <div class="tool-card">
+                <h2 class="section-title">留言板</h2>
+                <a href="https://penguin0901.github.io/dh/message.html" class="message-btn" target="_blank">我要留言</a>
+            </div>
+            
+            <div class="tool-card">
+                <h2 class="section-title">快速笔记</h2>
+                <textarea class="quick-notes" placeholder="记录您的想法..."></textarea>
+            </div>
+        </div>
+        
+        <footer>
+            <p>如有任何疑问与建议，请联系我</p>
+            <p>Tel：19133838393</p>
+            <p>微信：seal09-01</p>
+            <p>QQ：1835778840</p>
+            <p>抖音：Tephra0901</p>
+            <p>© 2025 企鹅导航页 | 功能实用</p>
+        </footer>
+    </div>
+    <script>
+        // 主题切换逻辑
+        const themeToggle = document.getElementById('theme-toggle');
+        const htmlRoot = document.documentElement;
+        const STORAGE_KEY = "penguin-nav-theme";
+        // 读取本地存储
+        function loadTheme(){
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if(saved === "dark"){
+                htmlRoot.classList.add("dark");
+                themeToggle.textContent = "☀️浅色模式";
+            }else{
+                htmlRoot.classList.remove("dark");
+                themeToggle.textContent = "🌙深色模式";
+            }
+        }
+        loadTheme();
+        themeToggle.addEventListener('click', ()=>{
+            htmlRoot.classList.toggle('dark');
+            const isDark = htmlRoot.classList.contains('dark');
+            if(isDark){
+                themeToggle.textContent = "☀️浅色模式";
+                localStorage.setItem(STORAGE_KEY,"dark");
+            }else{
+                themeToggle.textContent = "🌙深色模式";
+                localStorage.setItem(STORAGE_KEY,"light");
+            }
+        });
+        // 侧边栏功能
+        const sidebar = document.getElementById('sidebar');
+        const sidebarToggle = document.getElementById('sidebar-toggle');
+        
+        sidebarToggle.addEventListener('click', function() {
+            sidebar.classList.toggle('active');
+        });
+        
+        // 更新时间与日期
+        function updateTime() {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString();
+            const dateStr = now.toLocaleDateString('zh-CN', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                weekday: 'long'
+            });
+            
+            document.getElementById('current-time').textContent = timeStr;
+            document.getElementById('current-date').textContent = dateStr;
+        }
+        
+        // 初始调用并设置定时器每秒更新
+        updateTime();
+        setInterval(updateTime, 1000);
+        
+        // 搜索功能
+        document.getElementById('search-btn').addEventListener('click', function() {
+            const query = document.getElementById('search-input').value;
+            if (query.trim()) {
+                window.open(`https://www.baidu.com/s?wd=${encodeURIComponent(query)}`, '_blank');
+            }
+        });
+        
+        document.getElementById('search-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('search-btn').click();
+            }
+        });
+        
+ 
+    </script>
+</body>
+</html>
